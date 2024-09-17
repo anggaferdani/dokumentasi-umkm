@@ -34,6 +34,9 @@ class AuthenticationController extends Controller
                 if (auth()->user()->role == 1) {
                     RateLimiter::clear($request->ip());
                     return redirect()->route('admin.dashboard');
+                } elseif (auth()->user()->role == 2) {
+                    RateLimiter::clear($request->ip());
+                    return redirect()->route('index');
                 } else {
                     return redirect()->route('login')->with('error', 'The account level you entered does not match');
                 }

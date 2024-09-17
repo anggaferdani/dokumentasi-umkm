@@ -13,6 +13,7 @@
   <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="{{ asset('easy-searchable-filterable-select-list-with-jquery/jquery.searchableSelect.css') }}" rel="stylesheet">
   <style>
     * {
       font-family: "Space Grotesk", sans-serif;
@@ -31,14 +32,14 @@
       <div class="d-flex">
         <div class="text-white me-5"><i class="fa-solid fa-phone text-white me-1"></i> (021) 566 - 4688</div>
         <div class="text-white"><i class="fa-solid fa-envelope text-white me-1"></i> dokumentasi@umkm.com</div>
+        <div class="ms-auto"><a href="{{ route('logout') }}" class="text-white text-decoration-none">Logout</a></div>
       </div>
     </div>
   </div>
   <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm">
     <div class="container">
       <a class="navbar-brand" href="">
-        {{-- <img src="{{ asset('logo.png') }}" alt="" width="150" height=""> --}}
-        Dokumentasi UMKM
+        <img src="{{ asset('logo.png') }}" alt="" width="150" height="">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -46,16 +47,18 @@
       <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
         <ul class="navbar-nav m-auto mb-md-0 mb-3 gap-0 gap-md-3">
           <li class="nav-item">
-            <a class="nav-link text-dark" href="{{ route('umkm') }}">Home</a>
+            <a class="nav-link text-dark {{ Route::is('index') ? 'fw-bold' : '' }}" href="{{ route('index') }}">Beranda</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-dark" href="{{ route('product') }}">Product</a>
+            <a class="nav-link text-dark {{ Route::is('produk') ? 'fw-bold' : '' }}" href="{{ route('produk') }}">Produk</a>
           </li>
+          @if(auth()->user()->role == 1)
           <li class="nav-item">
             <a class="nav-link text-dark" href="{{ route('admin.dashboard') }}">Dashboard</a>
           </li>
+          @endif
         </ul>
-        <form class="d-flex" role="search" action="{{ route('product') }}">
+        <form class="d-flex" role="search" action="{{ route('produk') }}">
           <input class="form-control border border-end-0 rounded-end-0 rounded-pill ps-3 pe-0" name="search" type="text" placeholder="Search" style="outline: none; box-shadow: none;" value="{{ request()->search }}">
           <button class="btn btn-icon border border-start-0 rounded-start-0 rounded-pill" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
         </form>
@@ -70,13 +73,13 @@
           {{-- <div class="col-md-6 mb-3">
             <img src="{{ asset('logo-white.png') }}" class="img-fluid" alt="">
           </div> --}}
-          <div class="text-white fs-3 fw-bold mb-3">Dokumentasi UMKM</div>
+          <div class="text-white fs-3 fw-bold mb-3">Dinas Perdagangan Kota Surakarta</div>
           <div class="text-white lh-sm mb-3">Lorem ipsum dolor sit amet consectetur adipiscing elit tincidunt dictum dapibus elementum, commodo penatibus augue proin duis dis porta etiam diam. Dui condimentum lobortis sagittis tempus bibendum, a litora cum ornare, auctor aliquet eu lacus. Suscipit donec nullam luctus per rhoncus bibendum iaculis, curae ac felis nulla cubilia.</div>
         </div>
         <div class="col-12 col-md-auto">
           <div class="text-white fw-medium fs-3 mb-3 mt-3">Menu</div>
-          <div class="text-white mb-3"><a href="{{ route('umkm') }}" class="text-white text-decoration-none">Home</a></div>
-          <div class="text-white mb-3"><a href="{{ route('product') }}" class="text-white text-decoration-none">Product</a></div>
+          <div class="text-white mb-3"><a href="{{ route('index') }}" class="text-white text-decoration-none">Beranda</a></div>
+          <div class="text-white mb-3"><a href="{{ route('produk') }}" class="text-white text-decoration-none">Produk</a></div>
           <div class="text-white mb-3"><a href="{{ route('admin.dashboard') }}" class="text-white text-decoration-none">Dashboard</a></div>
         </div>
         <div class="col-12 col-md-3">
@@ -110,5 +113,12 @@
   </section>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+  <script src="{{ asset('easy-searchable-filterable-select-list-with-jquery/jquery-1.11.1.min.js') }}"></script>
+    <script src="{{ asset('easy-searchable-filterable-select-list-with-jquery/jquery.searchableSelect.js') }}"></script>
+    <script>
+      $(document).ready(function() {
+          $('.select').searchableSelect();
+      });
+    </script>
 </body>
 </html>

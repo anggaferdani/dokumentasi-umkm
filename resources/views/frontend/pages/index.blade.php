@@ -1,5 +1,5 @@
 @extends('frontend.templates.pages')
-@section('title', 'UMKM')
+@section('title', 'Index')
 @section('content')
 <div id="home" style="background-image: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0,0,0,0)), url('{{ asset('banner.jpg') }}'); background-size: cover; background-position: center; height: 89vh;">
   <div class="container" style="height: 100%;">

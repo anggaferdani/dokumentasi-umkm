@@ -11,6 +11,7 @@
     <link href="{{ asset('tabler/dist/css/tabler-vendors.min.css?1692870487') }}" rel="stylesheet"/>
     <link href="{{ asset('tabler/dist/css/demo.min.css?1692870487') }}" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="{{ asset('easy-searchable-filterable-select-list-with-jquery/jquery.searchableSelect.css') }}" rel="stylesheet">
     <style>
       @import url('https://rsms.me/inter/inter.css');
       :root {
@@ -49,5 +50,12 @@
     <script src="{{ asset('tabler/dist/libs/jsvectormap/dist/maps/world-merc.js?1692870487') }}" defer></script>
     <script src="{{ asset('tabler/dist/js/tabler.min.js?1692870487') }}" defer></script>
     <script src="{{ asset('tabler/dist/js/demo.min.js?1692870487') }}" defer></script>
+    <script src="{{ asset('easy-searchable-filterable-select-list-with-jquery/jquery-1.11.1.min.js') }}"></script>
+    <script src="{{ asset('easy-searchable-filterable-select-list-with-jquery/jquery.searchableSelect.js') }}"></script>
+    <script>
+      $(document).ready(function() {
+          $('.select').searchableSelect();
+      });
+    </script>
   </body>
 </html>
