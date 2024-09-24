@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Booth;
+use App\Models\UMKM;
 use App\Models\Produk;
 use App\Models\Shelter;
 use App\Models\Wilayah;
@@ -15,7 +15,7 @@ class FrontController extends Controller
     }
 
     public function produk(Request $request) {
-        $query = Produk::where('status', true);
+        $query = Produk::with('umkm', 'umkm.shelter', 'umkm.shelter.wilayah')->where('status', true);
 
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -30,34 +30,34 @@ class FrontController extends Controller
 
         if ($request->filled('wilayah')) {
             $wilayah = $request->input('wilayah');
-            $query->whereHas('booth.shelter.wilayah', function ($q) use ($wilayah) {
+            $query->whereHas('umkm.shelter.wilayah', function ($q) use ($wilayah) {
                 $q->where('id', $wilayah);
             });
         }
 
         if ($request->filled('shelter')) {
             $shelter = $request->input('shelter');
-            $query->whereHas('booth.shelter', function ($q) use ($shelter) {
+            $query->whereHas('umkm.shelter', function ($q) use ($shelter) {
                 $q->where('id', $shelter);
             });
         }
 
-        if ($request->filled('booth')) {
-            $booth = $request->input('booth');
-            $query->whereHas('booth', function ($q) use ($booth) {
-                $q->where('id', $booth);
+        if ($request->filled('umkm')) {
+            $umkm = $request->input('umkm');
+            $query->whereHas('umkm', function ($q) use ($umkm) {
+                $q->where('id', $umkm);
             });
         }
 
         $produks = $query->latest()->paginate(10);
         $wilayahs = Wilayah::where('status', true)->get();
         $shelters = Shelter::where('status', true)->get();
-        $booths = Booth::where('status', true)->get();
+        $umkms = UMKM::where('status', true)->get();
         return view('frontend.pages.produk', compact(
             'produks',
             'wilayahs',
             'shelters',
-            'booths',
+            'umkms',
         ));
     }
 }

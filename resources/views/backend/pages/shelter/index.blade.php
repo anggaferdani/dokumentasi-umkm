@@ -11,6 +11,8 @@
     <div class="col-auto ms-auto d-print-none">
       <div class="btn-list">
         <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#createModal">Create new report</a>
+        <a href="{{ route('admin.shelter.index', array_merge(request()->query(), ['export' => 'excel'])) }}" class="btn btn-success">Excel</a>
+        <a href="{{ route('admin.shelter.index', array_merge(request()->query(), ['export' => 'pdf'])) }}" class="btn btn-danger">PDF</a>
       </div>
     </div>
   </div>
@@ -35,7 +37,7 @@
           <div class="ms-auto">
             <form action="{{ route('admin.shelter.index') }}" class="">
               <div class="d-flex gap-1">
-                <select class="form-select select" name="wilayah">
+                <select class="form-select" name="wilayah">
                   <option disabled selected value="">Wilayah</option>
                   <option value="">Semua</option>
                   @foreach($wilayahs as $wilayah)
@@ -58,15 +60,33 @@
                 <th>No.</th>
                 <th>Wilayah</th>
                 <th>Nama Shelter</th>
+                <th>Ditempati</th>
+                <th>Kosong</th>
+                <th>Total</th>
+                <th>Ber SIP</th>
+                <th>Selisih</th>
+                <th>Notes</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               @foreach ($shelters as $shelter)
+                @php
+                  $ditempati = $shelter->umkms->count();
+                  $kosong = $shelter->kapasitas - $ditempati;
+                  $berSIP = $shelter->umkms->filter(function ($umkm) {
+                      return !empty($umkm->nomor_sip);
+                  })->count();
+                @endphp
                 <tr>
                   <td>{{ ($shelters->currentPage() - 1) * $shelters->perPage() + $loop->iteration }}</td>
                   <td>{{ $shelter->wilayah->nama }}</td>
                   <td>{{ $shelter->nama }}</td>
+                  <td>{{ $ditempati }}</td>
+                  <td>{{ $kosong }}</td>
+                  <td>{{ $shelter->kapasitas }}</td>
+                  <td>{{ $berSIP }}</td>
+                  <td>{{ $ditempati - $berSIP }}</td>
                   <td>
                     <div class="d-flex gap-1">
                       <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $shelter->id }}"><i class="fa-solid fa-pen"></i></button>
@@ -104,7 +124,7 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label required">Wilayah</label>
-            <select class="form-select select" name="wilayah_id">
+            <select class="form-select" name="wilayah_id">
               <option disabled selected value="">Pilih</option>
               @foreach($wilayahs as $wilayah)
                   <option value="{{ $wilayah->id }}">{{ $wilayah->nama }}</option>
@@ -116,6 +136,11 @@
             <label class="form-label required">Nama Shelter</label>
             <input type="text" class="form-control" name="nama" placeholder="Nama Shelter">
             @error('nama')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label required">Kapasitas</label>
+            <input type="number" class="form-control" name="kapasitas" placeholder="Kapasitas">
+            @error('kapasitas')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
         <div class="modal-footer">
@@ -143,7 +168,7 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label required">Wilayah</label>
-            <select class="form-select select" name="wilayah_id">
+            <select class="form-select" name="wilayah_id">
               <option disabled selected value="">Pilih</option>
               @foreach($wilayahs as $wilayah)
                 <option value="{{ $wilayah->id }}" @if($shelter->wilayah_id == $wilayah->id) @selected(true) @endif>{{ $wilayah->nama }}</option>
@@ -155,6 +180,11 @@
             <label class="form-label required">Nama Shelter</label>
             <input type="text" class="form-control" name="nama" placeholder="Nama Shelter" value="{{ $shelter->nama }}">
             @error('nama')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label required">Kapasitas</label>
+            <input type="number" class="form-control" name="kapasitas" placeholder="Kapasitas" value="{{ $shelter->kapasitas }}">
+            @error('kapasitas')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
         <div class="modal-footer">

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('wilayah_id');
             $table->foreign('wilayah_id')->references('id')->on('wilayahs')->onDelete('cascade');
             $table->string('nama');
+            $table->string('kapasitas');
             $table->boolean('status')->default(true);
             $table->timestamps();
         });

@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserContoller;
-use App\Http\Controllers\BoothController;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\ShelterController;
@@ -10,6 +9,7 @@ use App\Http\Controllers\WilayahController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\UMKMController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,7 +43,7 @@ Route::middleware(['auth:web', 'disableBackButton', 'user'])->group(function(){
             Route::resource('kategori', KategoriController::class);
             Route::resource('wilayah', WilayahController::class);
             Route::resource('shelter', ShelterController::class);
-            Route::resource('booth', BoothController::class);
+            Route::resource('umkm', UMKMController::class);
             Route::resource('produk', ProdukController::class);
         });
     });

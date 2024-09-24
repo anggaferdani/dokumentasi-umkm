@@ -16,7 +16,7 @@ class ProdukExport implements FromView
 
     public function view(): View
     {
-        return view('backend.exports.produks', [
+        return view('backend.exports.produk', [
             'produks' => $this->produks
         ]);
     }

@@ -13,11 +13,11 @@ class Shelter extends Model
     protected $primaryKey = 'id';
     protected $guarded = [];
 
-    public function booths() {
-        return $this->hasMany(Booth::class);
-    }
-
     public function wilayah() {
         return $this->belongsTo(Wilayah::class, 'wilayah_id');
+    }
+
+    public function umkms() {
+        return $this->hasMany(UMKM::class);
     }
 }

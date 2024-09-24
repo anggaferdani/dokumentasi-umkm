@@ -13,8 +13,8 @@ class Produk extends Model
     protected $primaryKey = 'id';
     protected $guarded = [];
 
-    public function booth() {
-        return $this->belongsTo(Booth::class, 'booth_id');
+    public function umkm() {
+        return $this->belongsTo(UMKM::class, 'umkm_id');
     }
 
     public function kategori() {

@@ -10,7 +10,7 @@
     <div class="row mb-3">
       <form action="{{ route('produk') }}" class="">
         <div class="d-flex gap-1">
-          <select class="form-select select" name="wilayah">
+          <select class="form-select" name="wilayah">
             <option disabled selected value="">Wilayah</option>
             <option value="">Semua</option>
             @foreach($wilayahs as $wilayah)
@@ -19,7 +19,7 @@
                 </option>
             @endforeach
           </select>
-          <select class="form-select select" name="shelter">
+          <select class="form-select" name="shelter">
             <option disabled selected value="">Shelter</option>
             <option value="">Semua</option>
             @foreach($shelters as $shelter)
@@ -28,12 +28,12 @@
                 </option>
             @endforeach
           </select>
-          <select class="form-select select" name="booth">
-            <option disabled selected value="">Booth</option>
+          <select class="form-select" name="umkm">
+            <option disabled selected value="">UMKM</option>
             <option value="">Semua</option>
-            @foreach($booths as $booth)
-                <option value="{{ $booth->id }}" {{ request('booth') == $booth->id ? 'selected' : '' }}>
-                    {{ $booth->nama }}
+            @foreach($umkms as $umkm)
+                <option value="{{ $umkm->id }}" {{ request('umkm') == $umkm->id ? 'selected' : '' }}>
+                    {{ $umkm->nama }}
                 </option>
             @endforeach
           </select>
@@ -57,9 +57,9 @@
             <div>Nama Produk : {{ $produk->nama_produk ?? '-' }}</div>
             <div>Deksripsi : {{ $produk->deskripsi_produk }}</div>
             <div>Kategori : {{ $produk->kategori->kategori }}</div>
-            <div>Wilayah : {{ $produk->booth->shelter->wilayah->nama }}</div>
-            <div>Shelter : {{ $produk->booth->shelter->nama }}</div>
-            <div>Booth : {{ $produk->booth->nama }}</div>
+            <div>Shelter : {{ $produk->umkm->shelter->nama }}</div>
+            <div>Nomor Shelter : {{ $produk->umkm->nomor_shelter }}</div>
+            <div>Nama UMKM : {{ $produk->umkm->nama }}</div>
           </div>
         </div>
       @endforeach

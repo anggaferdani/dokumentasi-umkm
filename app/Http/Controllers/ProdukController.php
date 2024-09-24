@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Booth;
 use App\Models\Produk;
 use App\Models\Shelter;
 use App\Models\Wilayah;
 use App\Models\Kategori;
 use Illuminate\Http\Request;
 use App\Exports\ProdukExport;
+use App\Models\UMKM;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ProdukController extends Controller
 {
     public function index(Request $request) {
-        $query = Produk::with('booth')->where('status', 1);
+        $query = Produk::with('umkm')->where('status', 1);
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -27,32 +27,32 @@ class ProdukController extends Controller
 
         if ($request->has('wilayah') && !empty($request->input('wilayah'))) {
             $wilayah = $request->input('wilayah');
-            $query->whereHas('booth.shelter.wilayah', function ($q) use ($wilayah) {
+            $query->whereHas('umkm.shelter.wilayah', function ($q) use ($wilayah) {
                 $q->where('id', $wilayah);
             });
         }
 
         if ($request->has('shelter') && !empty($request->input('shelter'))) {
             $shelter = $request->input('shelter');
-            $query->whereHas('booth.shelter', function ($q) use ($shelter) {
+            $query->whereHas('umkm.shelter', function ($q) use ($shelter) {
                 $q->where('id', $shelter);
             });
         }
 
-        if ($request->has('booth') && !empty($request->input('booth'))) {
-            $booth = $request->input('booth');
-            $query->whereHas('booth', function ($q) use ($booth) {
-                $q->where('id', $booth);
+        if ($request->has('umkm') && !empty($request->input('umkm'))) {
+            $umkm = $request->input('umkm');
+            $query->whereHas('umkm', function ($q) use ($umkm) {
+                $q->where('id', $umkm);
             });
         }
 
         if ($request->has('export') && $request->export == 'excel') {
-            $fileName = 'produk-' . now() . '.xlsx';
+            $fileName = 'produk-' . now()->format('d-m-Y-H-i-s') . '.xlsx';
             return Excel::download(new ProdukExport($query->get()), $fileName);
         }
     
         if ($request->has('export') && $request->export == 'pdf') {
-            $fileName = 'produk-' . now() . '.pdf';
+            $fileName = 'produk-' . now()->format('d-m-Y-H-i-s') . '.pdf';
             $produks = $query->get();
             $pdf = Pdf::loadView('backend.exports.produk', compact('produks'));
             return $pdf->download($fileName);
@@ -62,14 +62,14 @@ class ProdukController extends Controller
         $kategoris = Kategori::where('status', true)->get();
         $wilayahs = Wilayah::where('status', true)->get();
         $shelters = Shelter::where('status', true)->get();
-        $booths = Booth::where('status', true)->get();
+        $umkms = UMKM::where('status', true)->get();
 
         return view('backend.pages.produk.index', compact(
             'produks',
             'kategoris',
             'wilayahs',
             'shelters',
-            'booths',
+            'umkms',
         ));
     }
 
@@ -78,7 +78,7 @@ class ProdukController extends Controller
     public function store(Request $request) {
         try {
             $request->validate([
-                'booth_id' => 'required',
+                'umkm_id' => 'required',
                 'kategori_id' => 'required',
                 'nama_produk' => 'required',
                 'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg',
@@ -86,7 +86,7 @@ class ProdukController extends Controller
             ]);
     
             $array = [
-                'booth_id' => $request['booth_id'],
+                'umkm_id' => $request['umkm_id'],
                 'deskripsi_produk' => $request['deskripsi_produk'],
                 'nama_produk' => $request['nama_produk'],
                 'foto_produk' => $this->handleFileUpload($request->file('foto_produk'), 'images/produk/foto-produk/'),
@@ -110,7 +110,7 @@ class ProdukController extends Controller
             $produk = Produk::find($id);
     
             $request->validate([
-                'booth_id' => 'required',
+                'umkm_id' => 'required',
                 'kategori_id' => 'required',
                 'nama_produk' => 'required',
                 'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg',
@@ -118,7 +118,7 @@ class ProdukController extends Controller
             ]);
     
             $array = [
-                'booth_id' => $request['booth_id'],
+                'umkm_id' => $request['umkm_id'],
                 'kategori_id' => $request['kategori_id'],
                 'nama_produk' => $request['nama_produk'],
                 'deskripsi_produk' => $request['deskripsi_produk'],

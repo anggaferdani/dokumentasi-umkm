@@ -37,7 +37,7 @@
           <div class="ms-auto">
             <form action="{{ route('admin.produk.index') }}" class="">
               <div class="d-flex gap-1">
-                <select class="form-select select" name="wilayah">
+                <select class="form-select" name="wilayah">
                   <option disabled selected value="">Wilayah</option>
                   <option value="">Semua</option>
                   @foreach($wilayahs as $wilayah)
@@ -46,7 +46,7 @@
                       </option>
                   @endforeach
                 </select>
-                <select class="form-select select" name="shelter">
+                <select class="form-select" name="shelter">
                   <option disabled selected value="">Shelter</option>
                   <option value="">Semua</option>
                   @foreach($shelters as $shelter)
@@ -55,12 +55,12 @@
                       </option>
                   @endforeach
                 </select>
-                <select class="form-select select" name="booth">
-                  <option disabled selected value="">Booth</option>
+                <select class="form-select" name="umkm">
+                  <option disabled selected value="">UMKM</option>
                   <option value="">Semua</option>
-                  @foreach($booths as $booth)
-                      <option value="{{ $booth->id }}" {{ request('booth') == $booth->id ? 'selected' : '' }}>
-                          {{ $booth->nama }}
+                  @foreach($umkms as $umkm)
+                      <option value="{{ $umkm->id }}" {{ request('umkm') == $umkm->id ? 'selected' : '' }}>
+                          {{ $umkm->nama }}
                       </option>
                   @endforeach
                 </select>
@@ -77,7 +77,7 @@
               <tr>
                 <th>No.</th>
                 <th>Shelter</th>
-                <th>Booth</th>
+                <th>UMKM</th>
                 <th>Kategori</th>
                 <th>Foto Produk</th>
                 <th>Nama Produk</th>
@@ -89,8 +89,8 @@
               @foreach ($produks as $produk)
                 <tr>
                   <td>{{ ($produks->currentPage() - 1) * $produks->perPage() + $loop->iteration }}</td>
-                  <td>{{ $produk->booth->shelter->nama }}</td>
-                  <td>{{ $produk->booth->nama }}</td>
+                  <td>{{ $produk->umkm->shelter->nama }}</td>
+                  <td>{{ $produk->umkm->nama }}</td>
                   <td>{{ $produk->kategori->kategori }}</td>
                   <td>
                     @if($produk->foto_produk)
@@ -137,14 +137,14 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label required">Booth</label>
-            <select class="form-select select" name="booth_id">
+            <label class="form-label required">UMKM</label>
+            <select class="form-select" name="umkm_id">
               <option disabled selected value="">Pilih</option>
-              @foreach($booths as $booth)
-                  <option value="{{ $booth->id }}">{{ $booth->nama }}</option>
+              @foreach($umkms as $umkm)
+                  <option value="{{ $umkm->id }}">{{ $umkm->nama }}</option>
               @endforeach
             </select>
-            @error('booth_id')<div class="text-danger">{{ $message }}</div>@enderror
+            @error('umkm_id')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
             <label class="form-label required">Nama Produk</label>
@@ -163,7 +163,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label required">Kategori</label>
-            <select class="form-select select" name="kategori_id">
+            <select class="form-select" name="kategori_id">
               <option disabled selected value="">Pilih</option>
               @foreach($kategoris as $kategori)
                   <option value="{{ $kategori->id }}">{{ $kategori->kategori }}</option>
@@ -196,14 +196,14 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label required">Booth</label>
-            <select class="form-select select" name="booth_id">
+            <label class="form-label required">UMKM</label>
+            <select class="form-select" name="umkm_id">
               <option disabled selected value="">Pilih</option>
-              @foreach($booths as $booth)
-                <option value="{{ $booth->id }}" @if($produk->booth_id == $booth->id) @selected(true) @endif>{{ $booth->nama }}</option>
+              @foreach($umkms as $umkm)
+                <option value="{{ $umkm->id }}" @if($produk->umkm_id == $umkm->id) @selected(true) @endif>{{ $umkm->nama }}</option>
               @endforeach
             </select>
-            @error('booth_id')<div class="text-danger">{{ $message }}</div>@enderror
+            @error('umkm_id')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
             <label class="form-label required">Nama Produk</label>
@@ -223,7 +223,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label required">Kategori</label>
-            <select class="form-select select" name="kategori_id">
+            <select class="form-select" name="kategori_id">
               <option disabled selected value="">Pilih</option>
               @foreach($kategoris as $kategori)
                 <option value="{{ $kategori->id }}" @if($produk->kategori_id == $kategori->id) @selected(true) @endif>{{ $kategori->kategori }}</option>

@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Booth extends Model
+class UMKM extends Model
 {
     use HasFactory;
 
-    protected $table = 'booths';
+    protected $table = 'umkms';
     protected $primaryKey = 'id';
     protected $guarded = [];
 
