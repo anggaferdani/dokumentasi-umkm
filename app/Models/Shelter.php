@@ -20,4 +20,12 @@ class Shelter extends Model
     public function booths() {
         return $this->hasMany(Booth::class);
     }
+
+    public function district() {
+        return $this->belongsTo(District::class, 'kecamatan_id', 'dis_id');
+    }
+
+    public function subdistrict() {
+        return $this->belongsTo(Subdistrict::class, 'kelurahan_id', 'subdis_id');
+    }
 }

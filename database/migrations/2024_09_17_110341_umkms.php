@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('nomor_sip')->nullable();
             $table->string('valid_sip')->nullable();
             $table->text('note')->nullable();
+            $table->boolean('aktif')->default(true);
             $table->boolean('status')->default(true);
             $table->timestamps();
         });

@@ -59,6 +59,7 @@
               <tr>
                 <th>No.</th>
                 <th>Nama Shelter</th>
+                <th>Alamat</th>
                 <th>Ditempati</th>
                 <th>Kosong</th>
                 <th>Total</th>
@@ -80,6 +81,7 @@
                 <tr>
                   <td>{{ ($shelters->currentPage() - 1) * $shelters->perPage() + $loop->iteration }}</td>
                   <td>{{ $shelter->nama }}</td>
+                  <td>{{ $shelter->alamat ?? '-' }}, {{ $shelter->district->dis_name ?? '-' }}, {{ $shelter->subdistrict->subdis_name }}</td>
                   <td>{{ $ditempati }}</td>
                   <td>{{ $kosong }}</td>
                   <td>{{ $shelter->kapasitas }}</td>
@@ -122,16 +124,6 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label required">Wilayah</label>
-            <select class="form-select" name="wilayah_id">
-              <option disabled selected value="">Pilih</option>
-              @foreach($wilayahs as $wilayah)
-                  <option value="{{ $wilayah->id }}">{{ $wilayah->nama }}</option>
-              @endforeach
-            </select>
-            @error('wilayah_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
             <label class="form-label required">Nama Shelter</label>
             <input type="text" class="form-control" name="nama" placeholder="Nama Shelter">
             @error('nama')<div class="text-danger">{{ $message }}</div>@enderror
@@ -147,20 +139,22 @@
             @error('alamat')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="row">
-            <div class="col-4">
-              <label class="form-label required">Kelurahan</label>
-              <input type="text" class="form-control" name="kelurahan" placeholder="Kelurahan">
-              @error('kelurahan')<div class="text-danger">{{ $message }}</div>@enderror
-            </div>
-            <div class="col-4">
+            <div class="col-6">
               <label class="form-label required">Kecamatan</label>
-              <input type="text" class="form-control" name="kecamatan" placeholder="Kecamatan">
-              @error('kecamatan')<div class="text-danger">{{ $message }}</div>@enderror
+              <select class="form-select" name="kecamatan_id" id="district">
+                <option disabled selected value="">Pilih</option>
+                @foreach($districts as $district)
+                    <option value="{{ $district->dis_id }}">{{ $district->dis_name }}</option>
+                @endforeach
+              </select>
+              @error('kecamatan_id')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
-            <div class="col-4">
-              <label class="form-label required">Kabupaten</label>
-              <input type="text" class="form-control" name="kabupaten" placeholder="Kabupaten">
-              @error('kabupaten')<div class="text-danger">{{ $message }}</div>@enderror
+            <div class="col-6">
+              <label class="form-label required">Kelurahan</label>
+              <select class="form-select" name="kelurahan_id" id="subdistrict">
+                <option disabled selected value="">Pilih</option>
+              </select>
+              @error('kelurahan_id')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
           </div>
         </div>
@@ -188,16 +182,6 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label required">Wilayah</label>
-            <select class="form-select" name="wilayah_id">
-              <option disabled selected value="">Pilih</option>
-              @foreach($wilayahs as $wilayah)
-                <option value="{{ $wilayah->id }}" @if($shelter->wilayah_id == $wilayah->id) @selected(true) @endif>{{ $wilayah->nama }}</option>
-              @endforeach
-            </select>
-            @error('wilayah_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
             <label class="form-label required">Nama Shelter</label>
             <input type="text" class="form-control" name="nama" placeholder="Nama Shelter" value="{{ $shelter->nama }}">
             @error('nama')<div class="text-danger">{{ $message }}</div>@enderror
@@ -213,20 +197,27 @@
             @error('alamat')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="row">
-            <div class="col-4">
-              <label class="form-label required">Kelurahan</label>
-              <input type="text" class="form-control" name="kelurahan" placeholder="Kelurahan" value="{{ $shelter->kelurahan }}">
-              @error('kelurahan')<div class="text-danger">{{ $message }}</div>@enderror
-            </div>
-            <div class="col-4">
+            <div class="col-6">
               <label class="form-label required">Kecamatan</label>
-              <input type="text" class="form-control" name="kecamatan" placeholder="Kecamatan" value="{{ $shelter->kecamatan }}">
-              @error('kecamatan')<div class="text-danger">{{ $message }}</div>@enderror
+              <select class="form-select districtEdit" name="kecamatan_id" id="district{{ $shelter->id }}">
+                <option disabled selected value="">Pilih</option>
+                @foreach($districts as $district)
+                    <option value="{{ $district->dis_id }}" {{ $district->dis_id == $shelter->kecamatan_id ? 'selected' : '' }}>{{ $district->dis_name }}</option>
+                @endforeach
+              </select>
+              @error('kecamatan_id')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
-            <div class="col-4">
-              <label class="form-label required">Kabupaten</label>
-              <input type="text" class="form-control" name="kabupaten" placeholder="Kabupaten" value="{{ $shelter->kabupaten }}">
-              @error('kabupaten')<div class="text-danger">{{ $message }}</div>@enderror
+            <div class="col-6">
+              <label class="form-label required">Kelurahan</label>
+              <select class="form-select subdistrictEdit" name="kelurahan_id" id="subdistrict{{ $shelter->id }}">
+                <option disabled selected value="">Pilih</option>
+                @foreach($subdistricts as $subdistrict)
+                    <option value="{{ $subdistrict->subdis_id }}" {{ $subdistrict->subdis_id == $shelter->kelurahan_id ? 'selected' : '' }}>
+                        {{ $subdistrict->subdis_name }}
+                    </option>
+                @endforeach
+              </select>
+              @error('kelurahan_id')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
           </div>
         </div>
@@ -270,3 +261,53 @@
 </div>
 @endforeach
 @endsection
+@push('scripts')
+<script>
+  let districtName, subdistrictName;
+
+  $(document).ready(function () {
+    $('#district').on('change', function () {
+        var districtId = $(this).val();
+        districtName = $(this).children("option:selected").text();
+        console.log(districtName);
+        if (districtId) {
+            populateSubdistricts(districtId, '#subdistrict');
+        } else {
+            resetSubdistrict('#subdistrict');
+        }
+    });
+
+    $('.districtEdit').on('change', function () {
+        var districtId = $(this).val();
+        districtName = $(this).children("option:selected").text();
+        var subdistrictSelect = $(this).closest('.modal').find('.subdistrictEdit');
+
+        if (districtId) {
+            populateSubdistricts(districtId, subdistrictSelect);
+        } else {
+            resetSubdistrict(subdistrictSelect);
+        }
+    });
+  });
+
+  function populateSubdistricts(districtId, subdistrictSelect) {
+      $.ajax({
+          url: '/admin/get-subdistricts',
+          type: 'GET',
+          data: { district_id: districtId },
+          success: function (data) {
+              $(subdistrictSelect).empty();
+              $(subdistrictSelect).append('<option disabled selected value="">Pilih</option>');
+              $.each(data, function (key, value) {
+                  $(subdistrictSelect).append('<option value="' + value.subdis_id + '">' + value.subdis_name + '</option>');
+              });
+          }
+      });
+  }
+
+  function resetSubdistrict(subdistrictSelect) {
+      $(subdistrictSelect).empty();
+      $(subdistrictSelect).append('<option disabled selected value="">Pilih</option>');
+  }
+</script>
+@endpush

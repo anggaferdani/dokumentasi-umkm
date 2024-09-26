@@ -78,6 +78,7 @@ class UMKMController extends Controller
                 'surat_ijin_penempatan' => 'required',
                 'reribusi' => 'required',
                 'kategori_id' => 'required',
+                'aktif' => 'required',
             ]);
 
             $array = [
@@ -91,6 +92,7 @@ class UMKMController extends Controller
                 'jenis_dagangan' => $request['jenis_dagangan'],
                 'nomor_sip' => $request['nomor_sip'],
                 'valid_sip' => $request['valid_sip'],
+                'aktif' => $request['aktif'],
                 'note' => $request['note'],
                 'kategori_id' => $request['kategori_id'],
             ];
@@ -117,6 +119,7 @@ class UMKMController extends Controller
             'shift' => 'required',
             'surat_ijin_penempatan' => 'required',
             'reribusi' => 'required',
+            'aktif' => 'required',
         ]);
         
         try {
@@ -134,6 +137,7 @@ class UMKMController extends Controller
                 'jenis_dagangan' => $request['jenis_dagangan'],
                 'nomor_sip' => $request['nomor_sip'],
                 'valid_sip' => $request['valid_sip'],
+                'aktif' => $request['aktif'],
                 'note' => $request['note'],
             ];
     

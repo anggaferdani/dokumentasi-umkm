@@ -5,6 +5,7 @@ use App\Http\Controllers\UserContoller;
 use App\Http\Controllers\UMKMController;
 use App\Http\Controllers\BoothController;
 use App\Http\Controllers\FrontController;
+use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\ShelterController;
 use App\Http\Controllers\WilayahController;
@@ -52,6 +53,8 @@ Route::middleware(['auth:web', 'disableBackButton', 'user'])->group(function(){
             Route::put('shelter/{shelterId}/booth/{id}/update', [ShelterBoothController::class, 'update'])->name('shelter.booth.update');
             Route::delete('shelter/{shelterId}/booth/{id}/delete', [ShelterBoothController::class, 'delete'])->name('shelter.booth.delete');
             Route::resource('booth', BoothController::class);
+
+            Route::get('/get-subdistricts', [LokasiController::class, 'getSubdistricts']);
         });
     });
 });

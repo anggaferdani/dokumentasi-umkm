@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Booth;
 use App\Models\Shelter;
 use App\Models\Wilayah;
+use App\Models\District;
 use Illuminate\Http\Request;
 use App\Exports\ShelterExport;
+use App\Models\Subdistrict;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ShelterController extends Controller
 {
     public function index(Request $request) {
-        $query = Shelter::with('booths')->where('status', true);
+        $query = Shelter::with('booths', 'district', 'subdistrict')->where('status', true);
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -45,9 +47,15 @@ class ShelterController extends Controller
 
         $wilayahs = Wilayah::where('status', true)->get();
 
+        $districts = District::where('city_id', '3372')->get();
+        $districtIds = $districts->pluck('dis_id');
+        $subdistricts = Subdistrict::whereIn('dis_id', $districtIds)->get();
+
         return view('backend.pages.shelter.index', compact(
             'shelters',
             'wilayahs',
+            'districts',
+            'subdistricts',
         ));
     }
 
@@ -56,23 +64,21 @@ class ShelterController extends Controller
     public function store(Request $request) {
         try {
             $request->validate([
-                'wilayah_id' => 'required',
                 'nama' => 'required',
                 'kapasitas' => 'required|integer',
                 'alamat' => 'required',
-                'kelurahan' => 'required',
-                'kecamatan' => 'required',
-                'kabupaten' => 'required',
+                'kecamatan_id' => 'required',
+                'kelurahan_id' => 'required',
             ]);
     
             $array = [
-                'wilayah_id' => $request['wilayah_id'],
+                'wilayah_id' => 1,
                 'nama' => $request['nama'],
                 'kapasitas' => $request['kapasitas'],
                 'alamat' => $request['alamat'],
                 'kelurahan' => $request['kelurahan'],
-                'kecamatan' => $request['kecamatan'],
-                'kabupaten' => $request['kabupaten'],
+                'kecamatan_id' => $request['kecamatan_id'],
+                'kelurahan_id' => $request['kelurahan_id'],
             ];
 
             $shelter = Shelter::create($array);
@@ -103,17 +109,15 @@ class ShelterController extends Controller
             $shelter = Shelter::find($id);
     
             $request->validate([
-                'wilayah_id' => 'required',
                 'nama' => 'required',
                 'kapasitas' => 'required|integer',
                 'alamat' => 'required',
-                'kelurahan' => 'required',
-                'kecamatan' => 'required',
-                'kabupaten' => 'required',
+                'kecamatan_id' => 'required',
+                'kelurahan_id' => 'required',
             ]);
 
             $jumlahActiveBooths = $shelter->booths()->where('status', true)->count();
-            $jumlahUMKM = $shelter->umkms()->count();
+            $jumlahUMKM = $shelter->booths()->count();
 
             if ($request['kapasitas'] < $jumlahActiveBooths) {
                 return back()->with('error', 'Kapasitas tidak boleh kurang dari jumlah booth aktif yang terdaftar di shelter ini (' . $jumlahActiveBooths . ' booth).');
@@ -124,13 +128,12 @@ class ShelterController extends Controller
             }
     
             $array = [
-                'wilayah_id' => $request['wilayah_id'],
                 'nama' => $request['nama'],
                 'kapasitas' => $request['kapasitas'],
                 'alamat' => $request['alamat'],
                 'kelurahan' => $request['kelurahan'],
-                'kecamatan' => $request['kecamatan'],
-                'kabupaten' => $request['kabupaten'],
+                'kecamatan_id' => $request['kecamatan_id'],
+                'kelurahan_id' => $request['kelurahan_id'],
             ];
     
             $shelter->update($array);

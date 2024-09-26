@@ -20,7 +20,7 @@ class ShelterBoothController extends Controller
                 });
             }
             $shelter = Shelter::where('id', $shelterId)->first();
-            $booths = $query->where('shelter_id', $shelterId)->where('status', true)->latest()->paginate(10);
+            $booths = $query->where('shelter_id', $shelterId)->latest()->paginate(10);
             $boothUmkms = Booth::with('shelter', 'umkm')->where('status', true)->get();
             $shelters = Shelter::where('status', true)->get();
             $umkms = UMKM::with('booth.shelter')->where('status', true)->get();
@@ -31,7 +31,7 @@ class ShelterBoothController extends Controller
                 'shelter',
                 'shelters',
                 'umkms',
-                'registeredUmkms'
+                'registeredUmkms',
             ));
         } else {
             return back();

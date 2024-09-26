@@ -72,6 +72,8 @@
                 <th>Nama</th>
                 <th>Shift</th>
                 <th>Jenis Dagangan</th>
+                <th>Status</th>
+                <th>Note</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -84,6 +86,14 @@
                   <td>{{ $umkm->nama }}</td>
                   <td>{{ $umkm->shift }}</td>
                   <td>{{ $umkm->jenis_dagangan }}</td>
+                  <td>
+                    @if($umkm->aktif == true)
+                      <span class="badge bg-primary text-white">Aktif</span>
+                    @else
+                      <span class="badge bg-danger text-white">Non Aktif</span>
+                    @endif
+                  </td>
+                  <td>{{ $umkm->note ?? '-' }}</td>
                   <td>
                     <div class="d-flex gap-1">
                       <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $umkm->id }}"><i class="fa-solid fa-pen"></i></button>
@@ -215,6 +225,15 @@
             @error('valid_sip')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
+            <label class="form-label required">Status Aktif</label>
+            <select class="form-select" name="aktif">
+              <option disabled selected value="">Pilih</option>
+              <option value="true">Aktif</option>
+              <option value="false">Non Aktif</option>
+            </select>
+            @error('aktif')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="mb-3">
             <label class="form-label">Note</label>
             <textarea class="form-control" name="note" rows="3" placeholder="Note"></textarea>
             @error('note')<div class="text-danger">{{ $message }}</div>@enderror
@@ -338,6 +357,15 @@
             <label class="form-label">Valid SIP</label>
             <input type="text" class="form-control" name="valid_sip" placeholder="Valid SIP" value="{{ $umkm->valid_sip }}">
             @error('valid_sip')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label required">Status Aktif</label>
+            <select class="form-select" name="aktif">
+              <option disabled selected value="">Pilih</option>
+              <option value="true" @if($umkm->aktif == true) @selected(true) @endif>Aktif</option>
+              <option value="false" @if($umkm->aktif == false) @selected(true) @endif>Non Aktif</option>
+            </select>
+            @error('aktif')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
             <label class="form-label">Note</label>

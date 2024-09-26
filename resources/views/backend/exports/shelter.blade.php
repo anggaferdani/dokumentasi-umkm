@@ -3,6 +3,7 @@
       <tr>
           <th style="border: 1px black solid;">No.</th>
           <th style="border: 1px black solid;">Shelter</th>
+          <th style="border: 1px black solid;">Alamat</th>
           <th style="border: 1px black solid;">Ditempati</th>
           <th style="border: 1px black solid;">Kosong</th>
           <th style="border: 1px black solid;">Total</th>
@@ -23,6 +24,7 @@
       <tr>
           <td style="border: 1px black solid;">{{ $loop->iteration }}</td>
           <td style="border: 1px black solid;">{{ $shelter->nama }}</td>
+          <td style="border: 1px black solid;">{{ $shelter->alamat ?? '-' }}, {{ $shelter->district->dis_name ?? '-' }}, {{ $shelter->subdistrict->subdis_name }}</td>
           <td style="border: 1px black solid;">{{ $ditempati }}</td>
           <td style="border: 1px black solid;">{{ $kosong }}</td>
           <td style="border: 1px black solid;">{{ $shelter->kapasitas }}</td>
