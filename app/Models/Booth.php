@@ -5,13 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Produk extends Model
+class Booth extends Model
 {
     use HasFactory;
 
-    protected $table = 'produks';
+    protected $table = 'booths';
     protected $primaryKey = 'id';
     protected $guarded = [];
+
+    public function shelter() {
+        return $this->belongsTo(Shelter::class, 'shelter_id');
+    }
 
     public function umkm() {
         return $this->belongsTo(UMKM::class, 'umkm_id');

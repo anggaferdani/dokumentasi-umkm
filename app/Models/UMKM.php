@@ -13,11 +13,15 @@ class UMKM extends Model
     protected $primaryKey = 'id';
     protected $guarded = [];
 
-    public function shelter() {
-        return $this->belongsTo(Shelter::class, 'shelter_id');
-    }
-
     public function produks() {
         return $this->hasMany(Produk::class);
+    }
+
+    public function booth() {
+        return $this->hasOne(Booth::class, 'umkm_id');
+    }
+
+    public function kategori() {
+        return $this->belongsTo(Kategori::class, 'kategori_id');
     }
 }

@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\ShelterExport;
+use App\Models\Booth;
 use App\Models\Shelter;
 use App\Models\Wilayah;
 use Illuminate\Http\Request;
+use App\Exports\ShelterExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ShelterController extends Controller
 {
     public function index(Request $request) {
-        $query = Shelter::with('umkms')->where('status', true);
+        $query = Shelter::with('booths')->where('status', true);
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -21,12 +22,12 @@ class ShelterController extends Controller
             });
         }
 
-        if ($request->has('wilayah') && !empty($request->input('wilayah'))) {
-            $wilayah = $request->input('wilayah');
-            $query->whereHas('wilayah', function ($q) use ($wilayah) {
-                $q->where('id', $wilayah);
-            });
-        }
+        // if ($request->has('wilayah') && !empty($request->input('wilayah'))) {
+        //     $wilayah = $request->input('wilayah');
+        //     $query->whereHas('wilayah', function ($q) use ($wilayah) {
+        //         $q->where('id', $wilayah);
+        //     });
+        // }
 
         if ($request->has('export') && $request->export == 'excel') {
             $fileName = 'shelter-' . now()->format('d-m-Y-H-i-s') . '.xlsx';
@@ -58,15 +59,34 @@ class ShelterController extends Controller
                 'wilayah_id' => 'required',
                 'nama' => 'required',
                 'kapasitas' => 'required|integer',
+                'alamat' => 'required',
+                'kelurahan' => 'required',
+                'kecamatan' => 'required',
+                'kabupaten' => 'required',
             ]);
     
             $array = [
                 'wilayah_id' => $request['wilayah_id'],
                 'nama' => $request['nama'],
                 'kapasitas' => $request['kapasitas'],
+                'alamat' => $request['alamat'],
+                'kelurahan' => $request['kelurahan'],
+                'kecamatan' => $request['kecamatan'],
+                'kabupaten' => $request['kabupaten'],
             ];
 
-            Shelter::create($array);
+            $shelter = Shelter::create($array);
+
+            if ($shelter) {
+                for ($i = 1; $i <= $request['kapasitas']; $i++) {
+                    $booth = [
+                        'shelter_id' => $shelter->id,
+                        'nomor_booth' => $i,
+                    ];
+    
+                    Booth::create($booth);
+                }
+            }
     
             return redirect()->route('admin.shelter.index')->with('success', 'Success');
         } catch (\Throwable $th) {
@@ -86,9 +106,18 @@ class ShelterController extends Controller
                 'wilayah_id' => 'required',
                 'nama' => 'required',
                 'kapasitas' => 'required|integer',
+                'alamat' => 'required',
+                'kelurahan' => 'required',
+                'kecamatan' => 'required',
+                'kabupaten' => 'required',
             ]);
 
+            $jumlahActiveBooths = $shelter->booths()->where('status', true)->count();
             $jumlahUMKM = $shelter->umkms()->count();
+
+            if ($request['kapasitas'] < $jumlahActiveBooths) {
+                return back()->with('error', 'Kapasitas tidak boleh kurang dari jumlah booth aktif yang terdaftar di shelter ini (' . $jumlahActiveBooths . ' booth).');
+            }
 
             if ($request['kapasitas'] < $jumlahUMKM) {
                 return back()->with('error', 'Kapasitas tidak boleh kurang dari jumlah UMKM yang terdaftar di shelter ini (' . $jumlahUMKM . ' UMKM).');
@@ -98,6 +127,10 @@ class ShelterController extends Controller
                 'wilayah_id' => $request['wilayah_id'],
                 'nama' => $request['nama'],
                 'kapasitas' => $request['kapasitas'],
+                'alamat' => $request['alamat'],
+                'kelurahan' => $request['kelurahan'],
+                'kecamatan' => $request['kecamatan'],
+                'kabupaten' => $request['kabupaten'],
             ];
     
             $shelter->update($array);

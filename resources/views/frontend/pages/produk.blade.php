@@ -10,15 +10,6 @@
     <div class="row mb-3">
       <form action="{{ route('produk') }}" class="">
         <div class="d-flex gap-1">
-          <select class="form-select" name="wilayah">
-            <option disabled selected value="">Wilayah</option>
-            <option value="">Semua</option>
-            @foreach($wilayahs as $wilayah)
-                <option value="{{ $wilayah->id }}" {{ request('wilayah') == $wilayah->id ? 'selected' : '' }}>
-                    {{ $wilayah->nama }}
-                </option>
-            @endforeach
-          </select>
           <select class="form-select" name="shelter">
             <option disabled selected value="">Shelter</option>
             <option value="">Semua</option>
@@ -33,7 +24,7 @@
             <option value="">Semua</option>
             @foreach($umkms as $umkm)
                 <option value="{{ $umkm->id }}" {{ request('umkm') == $umkm->id ? 'selected' : '' }}>
-                    {{ $umkm->nama }}
+                    Booth {{ $umkm->booth->nomor_booth }} - {{ $umkm->nama }}
                 </option>
             @endforeach
           </select>
@@ -56,10 +47,10 @@
           <div class="col-md-9">
             <div>Nama Produk : {{ $produk->nama_produk ?? '-' }}</div>
             <div>Deksripsi : {{ $produk->deskripsi_produk }}</div>
-            <div>Kategori : {{ $produk->kategori->kategori }}</div>
-            <div>Shelter : {{ $produk->umkm->shelter->nama }}</div>
-            <div>Nomor Shelter : {{ $produk->umkm->nomor_shelter }}</div>
+            <div>Shelter : {{ $produk->umkm->booth->shelter->nama }}</div>
+            <div>Nomor Shelter : {{ $produk->umkm->booth->nomor_booth }}</div>
             <div>Nama UMKM : {{ $produk->umkm->nama }}</div>
+            <div>Kategori : {{ $produk->umkm->kategori->kategori }}</div>
           </div>
         </div>
       @endforeach

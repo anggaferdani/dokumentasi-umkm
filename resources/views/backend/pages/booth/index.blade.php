@@ -1,16 +1,17 @@
 @extends('backend.templates.pages')
-@section('title', 'Wilayah')
+@section('title', 'booth')
 @section('header')
 <div class="container-xl">
   <div class="row g-2 align-items-center">
     <div class="col">
       <h2 class="page-title">
-        Wilayah
+        Booth
       </h2>
     </div>
     <div class="col-auto ms-auto d-print-none">
       <div class="btn-list">
         <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create new report</a>
+        <a href="{{ route('admin.shelter.index') }}" class="btn btn-primary">Back</a>
       </div>
     </div>
   </div>
@@ -33,11 +34,11 @@
       <div class="card">
         <div class="card-header">
           <div class="ms-auto">
-            <form action="{{ route('admin.wilayah.index') }}" class="">
+            <form action="{{ route('admin.shelter.booth.index', ['shelterId' => $shelter->id]) }}" class="">
               <div class="d-flex gap-1">
                 <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Search">
                 <button type="submit" class="btn btn-icon btn-dark-outline"><i class="fa-solid fa-magnifying-glass"></i></button>
-                <a href="{{ route('admin.wilayah.index') }}" class="btn btn-icon btn-dark-outline"><i class="fa-solid fa-times"></i></a>
+                <a href="{{ route('admin.shelter.booth.index', ['shelterId' => $shelter->id]) }}" class="btn btn-icon btn-dark-outline"><i class="fa-solid fa-times"></i></a>
               </div>
             </form>
           </div>
@@ -47,19 +48,23 @@
             <thead>
               <tr>
                 <th>No.</th>
-                <th>Nama Wilayah</th>
+                <th>Shelter</th>
+                <th>UMKM</th>
+                <th>Nomor Booth</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              @foreach ($wilayahs as $wilayah)
+              @foreach ($booths as $booth)
                 <tr>
-                  <td>{{ ($wilayahs->currentPage() - 1) * $wilayahs->perPage() + $loop->iteration }}</td>
-                  <td>{{ $wilayah->nama }}</td>
+                  <td>{{ ($booths->currentPage() - 1) * $booths->perPage() + $loop->iteration }}</td>
+                  <td>{{ $booth->shelter->nama }}</td>
+                  <td>{{ $booth->umkm->nama ?? '-' }}</td>
+                  <td>{{ $booth->nomor_booth }}</td>
                   <td>
                     <div class="d-flex gap-1">
-                      <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $wilayah->id }}"><i class="fa-solid fa-pen"></i></button>
-                      <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $wilayah->id }}"><i class="fa-solid fa-trash"></i></button>
+                      <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $booth->id }}"><i class="fa-solid fa-pen"></i></button>
+                      <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $booth->id }}"><i class="fa-solid fa-trash"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -69,8 +74,8 @@
         </div>
         <div class="card-footer d-flex align-items-center">
           <ul class="pagination m-0 ms-auto">
-            @if($wilayahs->hasPages())
-              {{ $wilayahs->appends(request()->query())->links('pagination::bootstrap-4') }}
+            @if($booths->hasPages())
+              {{ $booths->appends(request()->query())->links('pagination::bootstrap-4') }}
             @else
               <li class="page-item">No more records</li>
             @endif
@@ -84,17 +89,35 @@
 <div class="modal modal-blur fade" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-      <form action="{{ route('admin.wilayah.store') }}" method="POST" class="">
+      <form action="{{ route('admin.shelter.booth.store', ['shelterId' => $shelter->id]) }}" method="POST" class="">
         @csrf
         <div class="modal-header">
           <h5 class="modal-title">Create</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+          <input type="hidden" class="form-control" name="shelter_id" placeholder="" value="{{ $shelter->id }}">
           <div class="mb-3">
-            <label class="form-label required">Nama Wilayah</label>
-            <input type="text" class="form-control" name="nama" placeholder="Nama Wilayah">
-            @error('nama')<div class="text-danger">{{ $message }}</div>@enderror
+            <label class="form-label required">UMKM</label>
+            <select class="form-select" name="umkm_id">
+              <option disabled selected value="">Pilih</option>
+              @foreach($umkms as $umkm)
+                  <option value="{{ $umkm->id }}"
+                      @if($registeredUmkms->contains($umkm->id)) @disabled(true) @endif
+                    >
+                    {{ $umkm->nama }}
+                    @if($registeredUmkms->contains($umkm->id))
+                      (Sudah terdaftar di shelter {{ $umkm->booth->shelter->nama }})
+                    @endif
+                  </option>
+              @endforeach
+            </select>
+            @error('umkm_id')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label required">Nomor Booth</label>
+            <input type="number" class="form-control" name="nomor_booth" placeholder="Nomor Booth">
+            @error('nomor_booth')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
         <div class="modal-footer">
@@ -108,11 +131,11 @@
   </div>
 </div>
 
-@foreach ($wilayahs as $wilayah)
-<div class="modal modal-blur fade" id="edit{{ $wilayah->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+@foreach ($booths as $booth)
+<div class="modal modal-blur fade" id="edit{{ $booth->id }}" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-      <form action="{{ route('admin.wilayah.update', $wilayah->id) }}" method="POST" class="">
+      <form action="{{ route('admin.shelter.booth.update', ['shelterId' => $shelter->id, 'id' => $booth->id]) }}" method="POST" class="">
         @csrf
         @method('PUT')
         <div class="modal-header">
@@ -120,10 +143,35 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+          <input type="hidden" class="form-control" name="shelter_id" placeholder="" value="{{ $shelter->id }}">
           <div class="mb-3">
-            <label class="form-label required">Nama Wilayah</label>
-            <input type="text" class="form-control" name="nama" placeholder="Nama Wilayah" value="{{ $wilayah->nama }}">
-            @error('nama')<div class="text-danger">{{ $message }}</div>@enderror
+            <label class="form-label required">UMKM</label>
+            <select class="form-select" name="umkm_id">
+              <option disabled selected value="">Pilih</option>
+              @foreach($umkms as $umkm)
+                <option value="{{ $umkm->id }}"
+                    @if($booth->umkm_id == $umkm->id) 
+                        @selected(true) 
+                    @endif
+            
+                    @if($registeredUmkms->contains($umkm->id) && $booth->umkm_id != $umkm->id) 
+                        @disabled(true) 
+                    @endif
+                >
+                    {{ $umkm->nama }}
+                    
+                    @if($registeredUmkms->contains($umkm->id) && $booth->umkm_id != $umkm->id)
+                        (Sudah terdaftar di shelter {{ $umkm->booth->shelter->nama }})
+                    @endif
+                </option>
+              @endforeach
+            </select>
+            @error('umkm_id')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label required">Nomor Booth</label>
+            <input type="number" class="form-control" name="nomor_booth" placeholder="Nomor Booth" value="{{ $booth->nomor_booth }}">
+            @error('nomor_booth')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
         <div class="modal-footer">
@@ -138,18 +186,18 @@
 </div>
 @endforeach
 
-@foreach ($wilayahs as $wilayah)
-<div class="modal modal-blur fade" id="delete{{ $wilayah->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+@foreach ($booths as $booth)
+<div class="modal modal-blur fade" id="delete{{ $booth->id }}" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       <div class="modal-status bg-danger"></div>
-      <form action="{{ route('admin.wilayah.destroy', $wilayah->id) }}" method="POST">
+      <form action="{{ route('admin.shelter.booth.delete', ['shelterId' => $shelter->id, 'id' => $booth->id]) }}" method="POST">
         @csrf
         @method('Delete')
         <div class="modal-body text-center py-4">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
-          <h3>Are you sure?</h3>
+          <h3>Apakah anda yakin ingin menghapus</h3>
           <div class="text-secondary">Are you sure you want to delete this? This action cannot be undone.</div>
         </div>
         <div class="modal-footer">

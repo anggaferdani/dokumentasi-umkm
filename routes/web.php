@@ -2,14 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserContoller;
+use App\Http\Controllers\UMKMController;
+use App\Http\Controllers\BoothController;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\ShelterController;
 use App\Http\Controllers\WilayahController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ShelterBoothController;
 use App\Http\Controllers\AuthenticationController;
-use App\Http\Controllers\UMKMController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +47,11 @@ Route::middleware(['auth:web', 'disableBackButton', 'user'])->group(function(){
             Route::resource('shelter', ShelterController::class);
             Route::resource('umkm', UMKMController::class);
             Route::resource('produk', ProdukController::class);
+            Route::get('shelter/{shelterId}/booth', [ShelterBoothController::class, 'index'])->name('shelter.booth.index');
+            Route::post('shelter/{shelterId}/booth/store', [ShelterBoothController::class, 'store'])->name('shelter.booth.store');
+            Route::put('shelter/{shelterId}/booth/{id}/update', [ShelterBoothController::class, 'update'])->name('shelter.booth.update');
+            Route::delete('shelter/{shelterId}/booth/{id}/delete', [ShelterBoothController::class, 'delete'])->name('shelter.booth.delete');
+            Route::resource('booth', BoothController::class);
         });
     });
 });

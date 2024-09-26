@@ -17,6 +17,10 @@ return new class extends Migration
             $table->foreign('wilayah_id')->references('id')->on('wilayahs')->onDelete('cascade');
             $table->string('nama');
             $table->string('kapasitas');
+            $table->text('alamat')->nullable();
+            $table->string('kelurahan')->nullable();
+            $table->string('kecamatan')->nullable();
+            $table->string('kabupaten')->nullable();
             $table->boolean('status')->default(true);
             $table->timestamps();
         });

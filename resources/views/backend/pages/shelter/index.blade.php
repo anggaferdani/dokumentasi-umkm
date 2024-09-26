@@ -10,7 +10,7 @@
     </div>
     <div class="col-auto ms-auto d-print-none">
       <div class="btn-list">
-        <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#createModal">Create new report</a>
+        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create new report</a>
         <a href="{{ route('admin.shelter.index', array_merge(request()->query(), ['export' => 'excel'])) }}" class="btn btn-success">Excel</a>
         <a href="{{ route('admin.shelter.index', array_merge(request()->query(), ['export' => 'pdf'])) }}" class="btn btn-danger">PDF</a>
       </div>
@@ -37,7 +37,7 @@
           <div class="ms-auto">
             <form action="{{ route('admin.shelter.index') }}" class="">
               <div class="d-flex gap-1">
-                <select class="form-select" name="wilayah">
+                {{-- <select class="form-select" name="wilayah">
                   <option disabled selected value="">Wilayah</option>
                   <option value="">Semua</option>
                   @foreach($wilayahs as $wilayah)
@@ -45,7 +45,7 @@
                           {{ $wilayah->nama }}
                       </option>
                   @endforeach
-                </select>
+                </select> --}}
                 <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Search">
                 <button type="submit" class="btn btn-icon btn-dark-outline"><i class="fa-solid fa-magnifying-glass"></i></button>
                 <a href="{{ route('admin.shelter.index') }}" class="btn btn-icon btn-dark-outline"><i class="fa-solid fa-times"></i></a>
@@ -58,7 +58,6 @@
             <thead>
               <tr>
                 <th>No.</th>
-                <th>Wilayah</th>
                 <th>Nama Shelter</th>
                 <th>Ditempati</th>
                 <th>Kosong</th>
@@ -72,15 +71,14 @@
             <tbody>
               @foreach ($shelters as $shelter)
                 @php
-                  $ditempati = $shelter->umkms->count();
-                  $kosong = $shelter->kapasitas - $ditempati;
-                  $berSIP = $shelter->umkms->filter(function ($umkm) {
-                      return !empty($umkm->nomor_sip);
-                  })->count();
+                    $ditempati = $shelter->booths()->whereNotNull('umkm_id')->count();
+                    $kosong = $shelter->kapasitas - $shelter->booths()->whereNotNull('umkm_id')->count();
+                    $berSIP = $shelter->booths()->whereHas('umkm', function ($query) {
+                        $query->whereNotNull('nomor_sip');
+                    })->count();
                 @endphp
                 <tr>
                   <td>{{ ($shelters->currentPage() - 1) * $shelters->perPage() + $loop->iteration }}</td>
-                  <td>{{ $shelter->wilayah->nama }}</td>
                   <td>{{ $shelter->nama }}</td>
                   <td>{{ $ditempati }}</td>
                   <td>{{ $kosong }}</td>
@@ -91,6 +89,7 @@
                     <div class="d-flex gap-1">
                       <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $shelter->id }}"><i class="fa-solid fa-pen"></i></button>
                       <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $shelter->id }}"><i class="fa-solid fa-trash"></i></button>
+                      <a href="{{ route('admin.shelter.booth.index', ['shelterId' => $shelter->id]) }}" class="btn btn-primary">Booth</a>
                     </div>
                   </td>
                 </tr>
@@ -142,6 +141,28 @@
             <input type="number" class="form-control" name="kapasitas" placeholder="Kapasitas">
             @error('kapasitas')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
+          <div class="mb-3">
+            <label class="form-label required">Alamat</label>
+            <textarea class="form-control" name="alamat" rows="3" placeholder="Masukan nama desa dan jalan"></textarea>
+            @error('alamat')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <label class="form-label required">Kelurahan</label>
+              <input type="text" class="form-control" name="kelurahan" placeholder="Kelurahan">
+              @error('kelurahan')<div class="text-danger">{{ $message }}</div>@enderror
+            </div>
+            <div class="col-4">
+              <label class="form-label required">Kecamatan</label>
+              <input type="text" class="form-control" name="kecamatan" placeholder="Kecamatan">
+              @error('kecamatan')<div class="text-danger">{{ $message }}</div>@enderror
+            </div>
+            <div class="col-4">
+              <label class="form-label required">Kabupaten</label>
+              <input type="text" class="form-control" name="kabupaten" placeholder="Kabupaten">
+              @error('kabupaten')<div class="text-danger">{{ $message }}</div>@enderror
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
@@ -185,6 +206,28 @@
             <label class="form-label required">Kapasitas</label>
             <input type="number" class="form-control" name="kapasitas" placeholder="Kapasitas" value="{{ $shelter->kapasitas }}">
             @error('kapasitas')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label required">Alamat</label>
+            <textarea class="form-control" name="alamat" rows="3" placeholder="Masukan nama desa dan jalan">{{ $shelter->alamat }}</textarea>
+            @error('alamat')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <label class="form-label required">Kelurahan</label>
+              <input type="text" class="form-control" name="kelurahan" placeholder="Kelurahan" value="{{ $shelter->kelurahan }}">
+              @error('kelurahan')<div class="text-danger">{{ $message }}</div>@enderror
+            </div>
+            <div class="col-4">
+              <label class="form-label required">Kecamatan</label>
+              <input type="text" class="form-control" name="kecamatan" placeholder="Kecamatan" value="{{ $shelter->kecamatan }}">
+              @error('kecamatan')<div class="text-danger">{{ $message }}</div>@enderror
+            </div>
+            <div class="col-4">
+              <label class="form-label required">Kabupaten</label>
+              <input type="text" class="form-control" name="kabupaten" placeholder="Kabupaten" value="{{ $shelter->kabupaten }}">
+              @error('kabupaten')<div class="text-danger">{{ $message }}</div>@enderror
+            </div>
           </div>
         </div>
         <div class="modal-footer">

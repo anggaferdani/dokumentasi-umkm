@@ -13,7 +13,7 @@ class Kategori extends Model
     protected $primaryKey = 'id';
     protected $guarded = [];
 
-    public function produks() {
-        return $this->hasMany(Produk::class);
+    public function umkms() {
+        return $this->hasMany(UMKM::class);
     }
 }

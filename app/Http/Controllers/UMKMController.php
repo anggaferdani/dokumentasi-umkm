@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\UMKM;
 use App\Models\Shelter;
 use App\Models\Wilayah;
+use App\Models\Kategori;
 use App\Exports\UMKMExport;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -13,7 +14,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class UMKMController extends Controller
 {
     public function index(Request $request) {
-        $query = UMKM::with('shelter', 'shelter.wilayah')->where('status', true);
+        $query = UMKM::with('booth', 'booth.shelter', 'booth.shelter.wilayah')->where('status', true);
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -24,16 +25,16 @@ class UMKMController extends Controller
             });
         }
 
-        if ($request->has('wilayah') && !empty($request->input('wilayah'))) {
-            $wilayah = $request->input('wilayah');
-            $query->whereHas('shelter.wilayah', function ($q) use ($wilayah) {
-                $q->where('id', $wilayah);
-            });
-        }
+        // if ($request->has('wilayah') && !empty($request->input('wilayah'))) {
+        //     $wilayah = $request->input('wilayah');
+        //     $query->whereHas('booth.shelter.wilayah', function ($q) use ($wilayah) {
+        //         $q->where('id', $wilayah);
+        //     });
+        // }
 
         if ($request->has('shelter') && !empty($request->input('shelter'))) {
             $shelter = $request->input('shelter');
-            $query->whereHas('shelter', function ($q) use ($shelter) {
+            $query->whereHas('booth.shelter', function ($q) use ($shelter) {
                 $q->where('id', $shelter);
             });
         }
@@ -53,20 +54,13 @@ class UMKMController extends Controller
         $umkms = $query->latest()->paginate(10);
 
         $wilayahs = Wilayah::where('status', true)->get();
-        $shelters = Shelter::where('status', true)
-            ->withCount('umkms')
-            ->latest()
-            ->get()
-            ->map(function ($shelter) {
-                $shelter->is_full = $shelter->umkms_count >= $shelter->kapasitas;
-                $shelter->current_count = $shelter->umkms_count;
-                $shelter->total_capacity = $shelter->kapasitas;
-                return $shelter;
-            });
+        $kategoris = Kategori::where('status', true)->get();
+        $shelters = Shelter::where('status', true)->get();
 
         return view('backend.pages.umkm.index', compact(
             'umkms',
             'wilayahs',
+            'kategoris',
             'shelters',
         ));
     }
@@ -80,21 +74,17 @@ class UMKMController extends Controller
                 'tempat_lahir' => 'required',
                 'tanggal_lahir' => 'required',
                 'alamat' => 'required',
-                'shelter_id' => 'required',
                 'shift' => 'required',
                 'surat_ijin_penempatan' => 'required',
                 'reribusi' => 'required',
+                'kategori_id' => 'required',
             ]);
 
-            $nomorShelter = UMKM::where('shelter_id', $request['shelter_id'])->max('nomor_shelter') + 1;
-    
             $array = [
                 'nama' => $request['nama'],
                 'tempat_lahir' => $request['tempat_lahir'],
                 'tanggal_lahir' => $request['tanggal_lahir'],
                 'alamat' => $request['alamat'],
-                'shelter_id' => $request['shelter_id'],
-                'nomor_shelter' => $nomorShelter,
                 'shift' => $request['shift'],
                 'surat_ijin_penempatan' => $request['surat_ijin_penempatan'],
                 'reribusi' => $request['reribusi'],
@@ -102,6 +92,7 @@ class UMKMController extends Controller
                 'nomor_sip' => $request['nomor_sip'],
                 'valid_sip' => $request['valid_sip'],
                 'note' => $request['note'],
+                'kategori_id' => $request['kategori_id'],
             ];
 
             UMKM::create($array);
@@ -120,9 +111,9 @@ class UMKMController extends Controller
         $request->validate([
             'nama' => 'required',
             'tempat_lahir' => 'required',
+            'kategori_id' => 'required',
             'tanggal_lahir' => 'required',
             'alamat' => 'required',
-            'shelter_id' => 'required',
             'shift' => 'required',
             'surat_ijin_penempatan' => 'required',
             'reribusi' => 'required',
@@ -131,19 +122,12 @@ class UMKMController extends Controller
         try {
             $umkm = UMKM::find($id);
     
-            if ($umkm->shelter_id != $request['shelter_id']) {
-                $nomorShelter = UMKM::where('shelter_id', $request['shelter_id'])->max('nomor_shelter') + 1;
-            } else {
-                $nomorShelter = $umkm->nomor_shelter;
-            }
-    
             $array = [
                 'nama' => $request['nama'],
                 'tempat_lahir' => $request['tempat_lahir'],
                 'tanggal_lahir' => $request['tanggal_lahir'],
                 'alamat' => $request['alamat'],
-                'shelter_id' => $request['shelter_id'],
-                'nomor_shelter' => $nomorShelter,
+                'kategori_id' => $request['kategori_id'],
                 'shift' => $request['shift'],
                 'surat_ijin_penempatan' => $request['surat_ijin_penempatan'],
                 'reribusi' => $request['reribusi'],

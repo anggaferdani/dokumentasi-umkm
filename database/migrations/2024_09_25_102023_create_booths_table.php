@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('produks', function (Blueprint $table) {
+        Schema::create('booths', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('umkm_id');
+            $table->unsignedBigInteger('shelter_id');
+            $table->foreign('shelter_id')->references('id')->on('shelters')->onDelete('cascade');
+            $table->unsignedBigInteger('umkm_id')->nullable();
             $table->foreign('umkm_id')->references('id')->on('umkms')->onDelete('cascade');
-            $table->string('nama_produk');
-            $table->text('deskripsi_produk')->nullable();
-            $table->string('foto_produk')->nullable();
+            $table->string('nomor_booth')->nullable();
             $table->boolean('status')->default(true);
             $table->timestamps();
         });
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('produks');
+        Schema::dropIfExists('booths');
     }
 };

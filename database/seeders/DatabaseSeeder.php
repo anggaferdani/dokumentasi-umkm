@@ -9,6 +9,7 @@ use App\Models\Profile;
 use App\Models\Experience;
 use Illuminate\Database\Seeder;
 use App\Models\WhyTradersChooseUs;
+use App\Models\Wilayah;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,5 +28,13 @@ class DatabaseSeeder extends Seeder
         ];
 
         User::insert($users);
+
+        $wilayahs = [
+            [
+                'nama' => 'Solo',
+            ],
+        ];
+
+        Wilayah::insert($wilayahs);
     }
 }

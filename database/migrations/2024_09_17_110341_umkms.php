@@ -17,12 +17,11 @@ return new class extends Migration
             $table->string('tempat_lahir');
             $table->date('tanggal_lahir');
             $table->text('alamat');
-            $table->unsignedBigInteger('shelter_id');
-            $table->foreign('shelter_id')->references('id')->on('shelters')->onDelete('cascade');
-            $table->string('nomor_shelter')->nullable();
             $table->string('shift')->nullable();
             $table->string('surat_ijin_penempatan')->nullable();
             $table->string('reribusi')->nullable();
+            $table->unsignedBigInteger('kategori_id');
+            $table->foreign('kategori_id')->references('id')->on('kategoris')->onDelete('cascade');
             $table->string('jenis_dagangan')->nullable();
             $table->string('nomor_sip')->nullable();
             $table->string('valid_sip')->nullable();

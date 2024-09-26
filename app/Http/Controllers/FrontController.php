@@ -15,7 +15,7 @@ class FrontController extends Controller
     }
 
     public function produk(Request $request) {
-        $query = Produk::with('umkm', 'umkm.shelter', 'umkm.shelter.wilayah')->where('status', true);
+        $query = Produk::with('umkm', 'umkm.booth', 'umkm.booth.shelter', 'umkm.booth.shelter.wilayah')->where('status', true);
 
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -23,21 +23,14 @@ class FrontController extends Controller
                 $q->where('nama_produk', 'like', '%' . $search . '%')
                   ->orWhere('deskripsi_produk', 'like', '%' . $search . '%');
             })
-            ->orWhereHas('kategori', function ($q) use ($search) {
+            ->orWhereHas('umkm.kategori', function ($q) use ($search) {
                 $q->where('kategori', 'like', '%' . $search . '%');
-            });
-        }
-
-        if ($request->filled('wilayah')) {
-            $wilayah = $request->input('wilayah');
-            $query->whereHas('umkm.shelter.wilayah', function ($q) use ($wilayah) {
-                $q->where('id', $wilayah);
             });
         }
 
         if ($request->filled('shelter')) {
             $shelter = $request->input('shelter');
-            $query->whereHas('umkm.shelter', function ($q) use ($shelter) {
+            $query->whereHas('umkm.booth.shelter', function ($q) use ($shelter) {
                 $q->where('id', $shelter);
             });
         }

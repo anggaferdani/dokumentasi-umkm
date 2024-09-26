@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Produk;
 use App\Models\Shelter;
 use App\Models\Wilayah;
-use App\Models\Kategori;
 use Illuminate\Http\Request;
 use App\Exports\ProdukExport;
 use App\Models\UMKM;
@@ -59,14 +58,12 @@ class ProdukController extends Controller
         }
 
         $produks = $query->latest()->paginate(10);
-        $kategoris = Kategori::where('status', true)->get();
         $wilayahs = Wilayah::where('status', true)->get();
         $shelters = Shelter::where('status', true)->get();
-        $umkms = UMKM::where('status', true)->get();
+        $umkms = UMKM::with('booth')->where('status', true)->get();
 
         return view('backend.pages.produk.index', compact(
             'produks',
-            'kategoris',
             'wilayahs',
             'shelters',
             'umkms',
@@ -79,7 +76,6 @@ class ProdukController extends Controller
         try {
             $request->validate([
                 'umkm_id' => 'required',
-                'kategori_id' => 'required',
                 'nama_produk' => 'required',
                 'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg',
                 'deskripsi_produk' => 'required',
@@ -90,7 +86,6 @@ class ProdukController extends Controller
                 'deskripsi_produk' => $request['deskripsi_produk'],
                 'nama_produk' => $request['nama_produk'],
                 'foto_produk' => $this->handleFileUpload($request->file('foto_produk'), 'images/produk/foto-produk/'),
-                'kategori_id' => $request['kategori_id'],
             ];
 
             Produk::create($array);

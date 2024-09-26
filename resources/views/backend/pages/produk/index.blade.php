@@ -10,7 +10,7 @@
     </div>
     <div class="col-auto ms-auto d-print-none">
       <div class="btn-list">
-        <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#createModal">Create new report</a>
+        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create new report</a>
         <a href="{{ route('admin.produk.index', array_merge(request()->query(), ['export' => 'excel'])) }}" class="btn btn-success">Excel</a>
         <a href="{{ route('admin.produk.index', array_merge(request()->query(), ['export' => 'pdf'])) }}" class="btn btn-danger">PDF</a>
       </div>
@@ -37,15 +37,6 @@
           <div class="ms-auto">
             <form action="{{ route('admin.produk.index') }}" class="">
               <div class="d-flex gap-1">
-                <select class="form-select" name="wilayah">
-                  <option disabled selected value="">Wilayah</option>
-                  <option value="">Semua</option>
-                  @foreach($wilayahs as $wilayah)
-                      <option value="{{ $wilayah->id }}" {{ request('wilayah') == $wilayah->id ? 'selected' : '' }}>
-                          {{ $wilayah->nama }}
-                      </option>
-                  @endforeach
-                </select>
                 <select class="form-select" name="shelter">
                   <option disabled selected value="">Shelter</option>
                   <option value="">Semua</option>
@@ -60,7 +51,7 @@
                   <option value="">Semua</option>
                   @foreach($umkms as $umkm)
                       <option value="{{ $umkm->id }}" {{ request('umkm') == $umkm->id ? 'selected' : '' }}>
-                          {{ $umkm->nama }}
+                        Booth {{ $umkm->booth->nomor_booth }} - {{ $umkm->nama }}
                       </option>
                   @endforeach
                 </select>
@@ -76,9 +67,7 @@
             <thead>
               <tr>
                 <th>No.</th>
-                <th>Shelter</th>
                 <th>UMKM</th>
-                <th>Kategori</th>
                 <th>Foto Produk</th>
                 <th>Nama Produk</th>
                 <th>Deskripsi Produk</th>
@@ -89,9 +78,7 @@
               @foreach ($produks as $produk)
                 <tr>
                   <td>{{ ($produks->currentPage() - 1) * $produks->perPage() + $loop->iteration }}</td>
-                  <td>{{ $produk->umkm->shelter->nama }}</td>
                   <td>{{ $produk->umkm->nama }}</td>
-                  <td>{{ $produk->kategori->kategori }}</td>
                   <td>
                     @if($produk->foto_produk)
                         <img src="/images/produk/foto-produk/{{ $produk->foto_produk }}" alt="" class="img-fluid" width="100">
@@ -161,16 +148,6 @@
             <textarea class="form-control" name="deskripsi_produk" rows="3" placeholder="Deskripsi Produk"></textarea>
             @error('deskripsi_produk')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
-          <div class="mb-3">
-            <label class="form-label required">Kategori</label>
-            <select class="form-select" name="kategori_id">
-              <option disabled selected value="">Pilih</option>
-              @foreach($kategoris as $kategori)
-                  <option value="{{ $kategori->id }}">{{ $kategori->kategori }}</option>
-              @endforeach
-            </select>
-            @error('kategori_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
         </div>
         <div class="modal-footer">
           <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
@@ -220,16 +197,6 @@
             <label class="form-label required">Deskripsi Produk</label>
             <textarea class="form-control" name="deskripsi_produk" rows="3" placeholder="Deskripsi Produk">{{ $produk->deskripsi_produk }}</textarea>
             @error('deskripsi_produk')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Kategori</label>
-            <select class="form-select" name="kategori_id">
-              <option disabled selected value="">Pilih</option>
-              @foreach($kategoris as $kategori)
-                <option value="{{ $kategori->id }}" @if($produk->kategori_id == $kategori->id) @selected(true) @endif>{{ $kategori->kategori }}</option>
-              @endforeach
-            </select>
-            @error('kategori_id')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
         <div class="modal-footer">

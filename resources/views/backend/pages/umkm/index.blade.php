@@ -10,7 +10,7 @@
     </div>
     <div class="col-auto ms-auto d-print-none">
       <div class="btn-list">
-        <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#createModal">Create new report</a>
+        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create new report</a>
         <a href="{{ route('admin.umkm.index', array_merge(request()->query(), ['export' => 'excel'])) }}" class="btn btn-success">Excel</a>
         <a href="{{ route('admin.umkm.index', array_merge(request()->query(), ['export' => 'pdf'])) }}" class="btn btn-danger">PDF</a>
       </div>
@@ -37,7 +37,7 @@
           <div class="ms-auto">
             <form action="{{ route('admin.umkm.index') }}" class="">
               <div class="d-flex gap-1">
-                <select class="form-select" name="wilayah">
+                {{-- <select class="form-select" name="wilayah">
                   <option disabled selected value="">Wilayah</option>
                   <option value="">Semua</option>
                   @foreach($wilayahs as $wilayah)
@@ -45,7 +45,7 @@
                           {{ $wilayah->nama }}
                       </option>
                   @endforeach
-                </select>
+                </select> --}}
                 <select class="form-select" name="shelter">
                   <option disabled selected value="">Shelter</option>
                   <option value="">Semua</option>
@@ -79,8 +79,8 @@
               @foreach ($umkms as $umkm)
                 <tr>
                   <td>{{ ($umkms->currentPage() - 1) * $umkms->perPage() + $loop->iteration }}</td>
-                  <td>{{ $umkm->shelter->nama }}</td>
-                  <td>{{ $umkm->nomor_shelter }}</td>
+                  <td>{{ $umkm->booth->shelter->nama ?? '-' }}</td>
+                  <td>{{ $umkm->booth->nomor_booth ?? '-' }}</td>
                   <td>{{ $umkm->nama }}</td>
                   <td>{{ $umkm->shift }}</td>
                   <td>{{ $umkm->jenis_dagangan }}</td>
@@ -119,7 +119,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
+          {{-- <div class="mb-3">
             <label class="form-label required">Shelter</label>
             <select class="form-select" name="shelter_id">
               <option disabled selected value="">Pilih</option>
@@ -136,7 +136,7 @@
               @endforeach
             </select>
             @error('shelter_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
+          </div> --}}
           <div class="mb-3">
             <label class="form-label required">Nama</label>
             <input type="text" class="form-control" name="nama" placeholder="Nama">
@@ -190,6 +190,16 @@
             @error('reribusi')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
+            <label class="form-label required">Kategori</label>
+            <select class="form-select" name="kategori_id">
+              <option disabled selected value="">Pilih</option>
+              @foreach($kategoris as $kategori)
+                  <option value="{{ $kategori->id }}">{{ $kategori->kategori }}</option>
+              @endforeach
+            </select>
+            @error('kategori_id')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="mb-3">
             <label class="form-label">Jenis Dagangan</label>
             <input type="text" class="form-control" name="jenis_dagangan" placeholder="Jenis Dagangan">
             @error('jenis_dagangan')<div class="text-danger">{{ $message }}</div>@enderror
@@ -233,7 +243,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
+          {{-- <div class="mb-3">
             <label class="form-label required">Shelter</label>
             <select class="form-select" name="shelter_id">
               <option disabled selected value="">Pilih</option>
@@ -251,7 +261,7 @@
               @endforeach
             </select>
             @error('shelter_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
+          </div> --}}
           <div class="mb-3">
             <label class="form-label required">Nama</label>
             <input type="text" class="form-control" name="nama" placeholder="Nama" value="{{ $umkm->nama }}">
@@ -303,6 +313,16 @@
               <option value="tidak lancar" @if($umkm->reribusi == 'tidak lancar') @selected(true) @endif>Tidak Lancar</option>
             </select>
             @error('reribusi')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label required">Kategori</label>
+            <select class="form-select" name="kategori_id">
+              <option disabled selected value="">Pilih</option>
+              @foreach($kategoris as $kategori)
+                <option value="{{ $kategori->id }}" @if($umkm->kategori_id == $kategori->id) @selected(true) @endif>{{ $kategori->kategori }}</option>
+              @endforeach
+            </select>
+            @error('kategori_id')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
             <label class="form-label">Jenis Dagangan</label>
