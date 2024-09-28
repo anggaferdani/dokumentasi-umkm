@@ -51,7 +51,7 @@
                   <option value="">Semua</option>
                   @foreach($umkms as $umkm)
                       <option value="{{ $umkm->id }}" {{ request('umkm') == $umkm->id ? 'selected' : '' }}>
-                        Booth {{ $umkm->booth->nomor_booth }} - {{ $umkm->nama }}
+                        {{ $umkm->nama }}
                       </option>
                   @endforeach
                 </select>

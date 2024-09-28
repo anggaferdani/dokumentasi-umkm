@@ -76,7 +76,7 @@ class UMKMController extends Controller
                 'alamat' => 'required',
                 'shift' => 'required',
                 'surat_ijin_penempatan' => 'required',
-                'reribusi' => 'required',
+                'retribusi' => 'required',
                 'kategori_id' => 'required',
                 'aktif' => 'required',
             ]);
@@ -88,7 +88,7 @@ class UMKMController extends Controller
                 'alamat' => $request['alamat'],
                 'shift' => $request['shift'],
                 'surat_ijin_penempatan' => $request['surat_ijin_penempatan'],
-                'reribusi' => $request['reribusi'],
+                'retribusi' => $request['retribusi'],
                 'jenis_dagangan' => $request['jenis_dagangan'],
                 'nomor_sip' => $request['nomor_sip'],
                 'valid_sip' => $request['valid_sip'],
@@ -118,7 +118,7 @@ class UMKMController extends Controller
             'alamat' => 'required',
             'shift' => 'required',
             'surat_ijin_penempatan' => 'required',
-            'reribusi' => 'required',
+            'retribusi' => 'required',
             'aktif' => 'required',
         ]);
         
@@ -133,7 +133,7 @@ class UMKMController extends Controller
                 'kategori_id' => $request['kategori_id'],
                 'shift' => $request['shift'],
                 'surat_ijin_penempatan' => $request['surat_ijin_penempatan'],
-                'reribusi' => $request['reribusi'],
+                'retribusi' => $request['retribusi'],
                 'jenis_dagangan' => $request['jenis_dagangan'],
                 'nomor_sip' => $request['nomor_sip'],
                 'valid_sip' => $request['valid_sip'],

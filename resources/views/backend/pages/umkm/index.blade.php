@@ -191,13 +191,13 @@
             @error('surat_ijin_penempatan')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
-            <label class="form-label required">Reribusi</label>
-            <select class="form-select" name="reribusi">
+            <label class="form-label required">Retribusi</label>
+            <select class="form-select" name="retribusi">
               <option disabled selected value="">Pilih</option>
               <option value="lancar">Lancar</option>
               <option value="tidak lancar">Tidak Lancar</option>
             </select>
-            @error('reribusi')<div class="text-danger">{{ $message }}</div>@enderror
+            @error('retribusi')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
             <label class="form-label required">Kategori</label>
@@ -228,8 +228,8 @@
             <label class="form-label required">Status Aktif</label>
             <select class="form-select" name="aktif">
               <option disabled selected value="">Pilih</option>
-              <option value="true">Aktif</option>
-              <option value="false">Non Aktif</option>
+              <option value="1">Aktif</option>
+              <option value="0">Non Aktif</option>
             </select>
             @error('aktif')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
@@ -325,13 +325,13 @@
             @error('surat_ijin_penempatan')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
-            <label class="form-label required">Reribusi</label>
-            <select class="form-select" name="reribusi">
+            <label class="form-label required">Retribusi</label>
+            <select class="form-select" name="retribusi">
               <option disabled selected value="">Pilih</option>
-              <option value="lancar" @if($umkm->reribusi == 'lancar') @selected(true) @endif>Lancar</option>
-              <option value="tidak lancar" @if($umkm->reribusi == 'tidak lancar') @selected(true) @endif>Tidak Lancar</option>
+              <option value="lancar" @if($umkm->retribusi == 'lancar') @selected(true) @endif>Lancar</option>
+              <option value="tidak lancar" @if($umkm->retribusi == 'tidak lancar') @selected(true) @endif>Tidak Lancar</option>
             </select>
-            @error('reribusi')<div class="text-danger">{{ $message }}</div>@enderror
+            @error('retribusi')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
             <label class="form-label required">Kategori</label>
@@ -362,8 +362,8 @@
             <label class="form-label required">Status Aktif</label>
             <select class="form-select" name="aktif">
               <option disabled selected value="">Pilih</option>
-              <option value="true" @if($umkm->aktif == true) @selected(true) @endif>Aktif</option>
-              <option value="false" @if($umkm->aktif == false) @selected(true) @endif>Non Aktif</option>
+              <option value="1" @if($umkm->aktif == 1) @selected(true) @endif>Aktif</option>
+              <option value="0" @if($umkm->aktif == 0) @selected(true) @endif>Non Aktif</option>
             </select>
             @error('aktif')<div class="text-danger">{{ $message }}</div>@enderror
           </div>

@@ -65,7 +65,6 @@
                 <th>Total</th>
                 <th>Ber SIP</th>
                 <th>Selisih</th>
-                <th>Notes</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -75,7 +74,7 @@
                     $ditempati = $shelter->booths()->whereNotNull('umkm_id')->count();
                     $kosong = $shelter->kapasitas - $shelter->booths()->whereNotNull('umkm_id')->count();
                     $berSIP = $shelter->booths()->whereHas('umkm', function ($query) {
-                        $query->whereNotNull('nomor_sip');
+                        $query->where('surat_ijin_penempatan', 'ada');
                     })->count();
                 @endphp
                 <tr>
