@@ -71,11 +71,11 @@
             <tbody>
               @foreach ($shelters as $shelter)
                 @php
-                    $ditempati = $shelter->booths()->whereNotNull('umkm_id')->count();
-                    $kosong = $shelter->kapasitas - $shelter->booths()->whereNotNull('umkm_id')->count();
-                    $berSIP = $shelter->booths()->whereHas('umkm', function ($query) {
-                        $query->where('surat_ijin_penempatan', 'ada');
-                    })->count();
+                  $ditempati = $shelter->umkms->count();
+                  $kosong = $shelter->kapasitas - $ditempati;
+                  $berSIP = $shelter->umkms->filter(function ($umkm) {
+                    return $umkm->surat_ijin_penempatan === "ada";
+                  })->count();
                 @endphp
                 <tr>
                   <td>{{ ($shelters->currentPage() - 1) * $shelters->perPage() + $loop->iteration }}</td>

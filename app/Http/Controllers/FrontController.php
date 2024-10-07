@@ -15,7 +15,7 @@ class FrontController extends Controller
     }
 
     public function produk(Request $request) {
-        $query = Produk::with('umkm', 'umkm.booth', 'umkm.booth.shelter', 'umkm.booth.shelter.wilayah')->where('status', true);
+        $query = Produk::with('umkm', 'umkm.shelter')->where('status', true);
 
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -30,7 +30,7 @@ class FrontController extends Controller
 
         if ($request->filled('shelter')) {
             $shelter = $request->input('shelter');
-            $query->whereHas('umkm.booth.shelter', function ($q) use ($shelter) {
+            $query->whereHas('umkm.shelter', function ($q) use ($shelter) {
                 $q->where('id', $shelter);
             });
         }

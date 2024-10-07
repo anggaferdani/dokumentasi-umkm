@@ -17,8 +17,8 @@ class UMKM extends Model
         return $this->hasMany(Produk::class);
     }
 
-    public function booth() {
-        return $this->hasOne(Booth::class, 'umkm_id');
+    public function shelter() {
+        return $this->belongsTo(Shelter::class, 'shelter_id');
     }
 
     public function kategori() {

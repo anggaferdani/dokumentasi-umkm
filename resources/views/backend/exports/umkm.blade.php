@@ -23,8 +23,8 @@
           <td style="border: 1px black solid;">{{ $umkm->nama }}</td>
           <td style="border: 1px black solid;">{{ $umkm->tempat_lahir }}, {{ $umkm->tanggal_lahir }}</td>
           <td style="border: 1px black solid;">{{ $umkm->alamat }}</td>
-          <td style="border: 1px black solid;">{{ $umkm->booth->shelter->nama }}</td>
-          <td style="border: 1px black solid;">{{ $umkm->booth->nomor_booth ?? '-' }}</td>
+          <td style="border: 1px black solid;">{{ $umkm->shelter->nama }}</td>
+          <td style="border: 1px black solid;">{{ $umkm->nomor_booth ?? '-' }}</td>
           <td style="border: 1px black solid;">{{ $umkm->shift }}</td>
           <td style="border: 1px black solid;">{{ $umkm->surat_ijin_penempatan }}</td>
           <td style="border: 1px black solid;">{{ $umkm->retribusi }}</td>

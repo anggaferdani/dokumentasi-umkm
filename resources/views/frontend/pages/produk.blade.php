@@ -47,8 +47,8 @@
           <div class="col-md-9">
             <div>Nama Produk : {{ $produk->nama_produk ?? '-' }}</div>
             <div>Deksripsi : {{ $produk->deskripsi_produk ?? '-' }}</div>
-            <div>Shelter : {{ $produk->umkm->booth->shelter->nama ?? '-' }}</div>
-            <div>Nomor Shelter : {{ $produk->umkm->booth->nomor_booth ?? '-' }}</div>
+            <div>Shelter : {{ $produk->umkm->shelter->nama ?? '-' }}</div>
+            <div>Nomor Shelter : {{ $produk->umkm->nomor_booth ?? '-' }}</div>
             <div>Nama UMKM : {{ $produk->umkm->nama ?? '-' }}</div>
             <div>Kategori : {{ $produk->umkm->kategori->kategori ?? '-' }}</div>
           </div>

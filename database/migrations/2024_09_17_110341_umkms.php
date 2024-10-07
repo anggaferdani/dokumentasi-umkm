@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('umkms', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('shelter_id');
+            $table->foreign('shelter_id')->references('id')->on('shelters')->onDelete('cascade');
             $table->string('nama');
             $table->string('tempat_lahir');
             $table->date('tanggal_lahir');
@@ -20,6 +22,7 @@ return new class extends Migration
             $table->string('shift')->nullable();
             $table->string('surat_ijin_penempatan')->nullable();
             $table->string('retribusi')->nullable();
+            $table->string('nomor_booth');
             $table->unsignedBigInteger('kategori_id');
             $table->foreign('kategori_id')->references('id')->on('kategoris')->onDelete('cascade');
             $table->string('jenis_dagangan')->nullable();

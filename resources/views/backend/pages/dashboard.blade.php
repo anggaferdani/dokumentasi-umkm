@@ -30,16 +30,16 @@
     <div class="col-md-4">
       <div class="card">
         <div class="card-body">
-          <div class="subheader">Total UMKM Yang Menempati Shelter</div>
-          <div class="h3 m-0">{{ $totalUMKMYangMenempatiShelter }} UMKM</div>
+          <div class="subheader">Total UMKM Ber SIP</div>
+          <div class="h3 m-0">{{ $totalUMKMBerSIP }} UMKM</div>
         </div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="card">
         <div class="card-body">
-          <div class="subheader">Total UMKM Yang Tidak Menempati Shelter</div>
-          <div class="h3 m-0">{{ $totalUMKMYangTidakMenempatiShelter }} UMKM</div>
+          <div class="subheader">Total UMKM Tidak Ber SIP</div>
+          <div class="h3 m-0">{{ $totalUMKMTidakBerSIP }} UMKM</div>
         </div>
       </div>
     </div>
@@ -117,10 +117,10 @@
             </div>
             <div class="col">
               <div class="font-weight-medium">
-                Total UMKM Ber SIP
+                Total UMKM Ber Note
               </div>
               <div class="text-secondary">
-                {{ $totalUMKMBerSIP }}
+                {{ $totalUMKMBerNote }}
               </div>
             </div>
           </div>
@@ -140,14 +140,6 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>UMKM Ber SIP</td>
-              <td>{{ $totalUMKMBerSIP }}</td>
-            </tr>
-            <tr>
-              <td>UMKM Tidak Ber SIP</td>
-              <td>{{ $totalUMKMTidakBerSIP }}</td>
-            </tr>
             <tr>
               <td>UMKM Ber Retribusi Lancar</td>
               <td>{{ $totalUMKMBerRetribusiLancar }}</td>
@@ -180,13 +172,13 @@
             </thead>
             <tbody>
               @foreach ($shelters as $shelter)
-                @php
-                    $ditempati = $shelter->booths()->whereNotNull('umkm_id')->count();
-                    $kosong = $shelter->kapasitas - $shelter->booths()->whereNotNull('umkm_id')->count();
-                    $berSIP = $shelter->booths()->whereHas('umkm', function ($query) {
-                        $query->where('surat_ijin_penempatan', 'ada');
-                    })->count();
-                @endphp
+              @php
+                $ditempati = $shelter->umkms->count();
+                $kosong = $shelter->kapasitas - $ditempati;
+                $berSIP = $shelter->umkms->filter(function ($umkm) {
+                  return $umkm->surat_ijin_penempatan === "ada";
+                })->count();
+              @endphp
                 <tr>
                   <td>{{ ($shelters->currentPage() - 1) * $shelters->perPage() + $loop->iteration }}</td>
                   <td>{{ $shelter->nama }}</td>

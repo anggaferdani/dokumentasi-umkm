@@ -15,7 +15,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class ShelterController extends Controller
 {
     public function index(Request $request) {
-        $query = Shelter::with('booths', 'district', 'subdistrict')->where('status', true);
+        $query = Shelter::with('district', 'subdistrict')->where('status', true);
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -83,17 +83,6 @@ class ShelterController extends Controller
 
             $shelter = Shelter::create($array);
 
-            if ($shelter) {
-                for ($i = 1; $i <= $request['kapasitas']; $i++) {
-                    $booth = [
-                        'shelter_id' => $shelter->id,
-                        'nomor_booth' => $i,
-                    ];
-    
-                    Booth::create($booth);
-                }
-            }
-    
             return redirect()->route('admin.shelter.index')->with('success', 'Success');
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());

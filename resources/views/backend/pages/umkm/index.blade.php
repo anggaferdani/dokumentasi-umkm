@@ -81,8 +81,8 @@
               @foreach ($umkms as $umkm)
                 <tr>
                   <td>{{ ($umkms->currentPage() - 1) * $umkms->perPage() + $loop->iteration }}</td>
-                  <td>{{ $umkm->booth->shelter->nama ?? '-' }}</td>
-                  <td>{{ $umkm->booth->nomor_booth ?? '-' }}</td>
+                  <td>{{ $umkm->shelter->nama ?? '-' }}</td>
+                  <td>{{ $umkm->nomor_booth ?? '-' }}</td>
                   <td>{{ $umkm->nama }}</td>
                   <td>{{ $umkm->shift }}</td>
                   <td>{{ $umkm->jenis_dagangan }}</td>
@@ -129,7 +129,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          {{-- <div class="mb-3">
+          <div class="mb-3">
             <label class="form-label required">Shelter</label>
             <select class="form-select" name="shelter_id">
               <option disabled selected value="">Pilih</option>
@@ -146,7 +146,12 @@
               @endforeach
             </select>
             @error('shelter_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div> --}}
+          </div>
+          <div class="mb-3">
+            <label class="form-label required">Nomor Booth</label>
+            <input type="number" class="form-control" name="nomor_booth" placeholder="Nomor Booth">
+            @error('nomor_booth')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
           <div class="mb-3">
             <label class="form-label required">Nama</label>
             <input type="text" class="form-control" name="nama" placeholder="Nama">
@@ -262,25 +267,30 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          {{-- <div class="mb-3">
+          <div class="mb-3">
             <label class="form-label required">Shelter</label>
             <select class="form-select" name="shelter_id">
               <option disabled selected value="">Pilih</option>
               @foreach($shelters as $shelter)
                 <option value="{{ $shelter->id }}" 
-                  @if($shelter->is_full) disabled @endif
-                  @if($umkm->shelter_id == $shelter->id) selected @endif>
-                  {{ $shelter->nama }} 
-                  @if($shelter->is_full)
-                      {{ $shelter->current_count }}/{{ $shelter->total_capacity }}
-                  @else
-                      {{ $shelter->current_count }}/{{ $shelter->total_capacity }}
+                  @if($shelter->is_full && $umkm->shelter_id != $shelter->id) 
+                    disabled 
                   @endif
+                  @if($umkm->shelter_id == $shelter->id) 
+                      selected 
+                  @endif>
+                  {{ $shelter->nama }} 
+                  ({{ $shelter->current_count }}/{{ $shelter->total_capacity }}) @if($shelter->is_full && $umkm->shelter_id != $shelter->id) *Kapasitas Full @endif
                 </option>
               @endforeach
             </select>
             @error('shelter_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div> --}}
+          </div>
+          <div class="mb-3">
+            <label class="form-label required">Nomor Booth</label>
+            <input type="text" class="form-control" name="nomor_booth" placeholder="Nomor Booth" value="{{ $umkm->nomor_booth }}">
+            @error('nomor_booth')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
           <div class="mb-3">
             <label class="form-label required">Nama</label>
             <input type="text" class="form-control" name="nama" placeholder="Nama" value="{{ $umkm->nama }}">
