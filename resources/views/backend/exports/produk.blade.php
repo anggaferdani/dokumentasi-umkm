@@ -14,10 +14,10 @@
       @foreach($produks as $produk)
       <tr>
           <td style="border: 1px black solid;">{{ $loop->iteration }}</td>
-          <td style="border: 1px black solid;">{{ $produk->umkm->booth->shelter->nama }}</td>
-          <td style="border: 1px black solid;">{{ $produk->umkm->booth->nomor_booth }}</td>
+          <td style="border: 1px black solid;">{{ $produk->umkm->shelter->nama }}</td>
+          <td style="border: 1px black solid;">{{ $produk->umkm->nomor_booth }}</td>
           <td style="border: 1px black solid;">{{ $produk->umkm->nama }}</td>
-          <td style="border: 1px black solid;">{{ $produk->foto_produk }}</td>
+          <td style="border: 1px black solid;">{{ $produk->foto_produk ?? '-' }}</td>
           <td style="border: 1px black solid;">{{ $produk->nama_produk }}</td>
           <td style="border: 1px black solid;">{{ $produk->deskripsi_produk }}</td>
       </tr>

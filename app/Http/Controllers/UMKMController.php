@@ -9,12 +9,13 @@ use App\Models\Kategori;
 use App\Exports\UMKMExport;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
 class UMKMController extends Controller
 {
     public function index(Request $request) {
-        $query = UMKM::with('booth', 'booth.shelter', 'booth.shelter.wilayah')->where('status', true);
+        $query = UMKM::with('kategori')->where('status', true);
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -25,16 +26,9 @@ class UMKMController extends Controller
             });
         }
 
-        // if ($request->has('wilayah') && !empty($request->input('wilayah'))) {
-        //     $wilayah = $request->input('wilayah');
-        //     $query->whereHas('booth.shelter.wilayah', function ($q) use ($wilayah) {
-        //         $q->where('id', $wilayah);
-        //     });
-        // }
-
         if ($request->has('shelter') && !empty($request->input('shelter'))) {
             $shelter = $request->input('shelter');
-            $query->whereHas('booth.shelter', function ($q) use ($shelter) {
+            $query->whereHas('shelter', function ($q) use ($shelter) {
                 $q->where('id', $shelter);
             });
         }
@@ -55,7 +49,16 @@ class UMKMController extends Controller
 
         $wilayahs = Wilayah::where('status', true)->get();
         $kategoris = Kategori::where('status', true)->get();
-        $shelters = Shelter::where('status', true)->get();
+        $shelters = Shelter::where('status', true)
+            ->withCount('umkms')
+            ->latest()
+            ->get()
+            ->map(function ($shelter) {
+                $shelter->is_full = $shelter->umkms_count >= $shelter->kapasitas;
+                $shelter->current_count = $shelter->umkms_count;
+                $shelter->total_capacity = $shelter->kapasitas;
+                return $shelter;
+            });
 
         return view('backend.pages.umkm.index', compact(
             'umkms',
@@ -70,6 +73,13 @@ class UMKMController extends Controller
     public function store(Request $request) {
         try {
             $request->validate([
+                'shelter_id' => 'required',
+                'nomor_booth' => [
+                    'required',
+                    Rule::unique('umkms')->where(function ($query) use ($request) {
+                        return $query->where('shelter_id', $request->shelter_id);
+                    })
+                ],
                 'nama' => 'required',
                 'tempat_lahir' => 'required',
                 'tanggal_lahir' => 'required',
@@ -79,9 +89,27 @@ class UMKMController extends Controller
                 'retribusi' => 'required',
                 'kategori_id' => 'required',
                 'aktif' => 'required',
+            ], [
+                'shelter_id.required' => 'Shelter wajib diisi.',
+                'nomor_booth.required' => 'Nomor Booth wajib diisi.',
+                'nomor_booth.unique' => 'Nomor Booth ini sudah digunakan untuk Shelter yang dipilih.',
+                'nama.required' => 'Nama wajib diisi.',
+                'tempat_lahir.required' => 'Tempat Lahir wajib diisi.',
+                'tanggal_lahir.required' => 'Tanggal Lahir wajib diisi.',
+                'tanggal_lahir.date' => 'Tanggal Lahir harus berupa tanggal yang valid.',
+                'alamat.required' => 'Alamat wajib diisi.',
+                'shift.required' => 'Shift wajib diisi.',
+                'surat_ijin_penempatan.required' => 'Surat Ijin Penempatan wajib diisi.',
+                'retribusi.required' => 'Retribusi wajib diisi.',
+                'retribusi.numeric' => 'Retribusi harus berupa angka.',
+                'kategori_id.required' => 'Kategori wajib diisi.',
+                'aktif.required' => 'Status aktif wajib diisi.',
+                'aktif.boolean' => 'Status aktif harus berupa true atau false.',
             ]);
 
             $array = [
+                'shelter_id' => $request['shelter_id'],
+                'nomor_booth' => $request['nomor_booth'],
                 'nama' => $request['nama'],
                 'tempat_lahir' => $request['tempat_lahir'],
                 'tanggal_lahir' => $request['tanggal_lahir'],
@@ -110,22 +138,47 @@ class UMKMController extends Controller
     public function edit($id) {}
 
     public function update(Request $request, $id) {
-        $request->validate([
-            'nama' => 'required',
-            'tempat_lahir' => 'required',
-            'kategori_id' => 'required',
-            'tanggal_lahir' => 'required',
-            'alamat' => 'required',
-            'shift' => 'required',
-            'surat_ijin_penempatan' => 'required',
-            'retribusi' => 'required',
-            'aktif' => 'required',
-        ]);
-        
         try {
             $umkm = UMKM::find($id);
     
+            $request->validate([
+                'shelter_id' => 'required',
+                'nomor_booth' => [
+                    'required',
+                    Rule::unique('umkms')->where(function ($query) use ($request) {
+                        return $query->where('shelter_id', $request->shelter_id);
+                    })->ignore($umkm->id)
+                ],
+                'nama' => 'required',
+                'tempat_lahir' => 'required',
+                'kategori_id' => 'required',
+                'tanggal_lahir' => 'required',
+                'alamat' => 'required',
+                'shift' => 'required',
+                'surat_ijin_penempatan' => 'required',
+                'retribusi' => 'required',
+                'aktif' => 'required',
+            ], [
+                'shelter_id.required' => 'Shelter wajib diisi.',
+                'nomor_booth.required' => 'Nomor Booth wajib diisi.',
+                'nomor_booth.unique' => 'Nomor Booth ini sudah digunakan di Shelter yang dipilih.',
+                'nama.required' => 'Nama wajib diisi.',
+                'tempat_lahir.required' => 'Tempat Lahir wajib diisi.',
+                'tanggal_lahir.required' => 'Tanggal Lahir wajib diisi.',
+                'tanggal_lahir.date' => 'Tanggal Lahir harus berupa tanggal yang valid.',
+                'alamat.required' => 'Alamat wajib diisi.',
+                'shift.required' => 'Shift wajib diisi.',
+                'surat_ijin_penempatan.required' => 'Surat Ijin Penempatan wajib diisi.',
+                'retribusi.required' => 'Retribusi wajib diisi.',
+                'retribusi.numeric' => 'Retribusi harus berupa angka.',
+                'kategori_id.required' => 'Kategori wajib diisi.',
+                'aktif.required' => 'Status aktif wajib diisi.',
+                'aktif.boolean' => 'Status aktif harus berupa true atau false.',
+            ]);
+
             $array = [
+                'shelter_id' => $request['shelter_id'],
+                'nomor_booth' => $request['nomor_booth'],
                 'nama' => $request['nama'],
                 'tempat_lahir' => $request['tempat_lahir'],
                 'tanggal_lahir' => $request['tanggal_lahir'],

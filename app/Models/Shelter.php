@@ -17,8 +17,8 @@ class Shelter extends Model
         return $this->belongsTo(Wilayah::class, 'wilayah_id');
     }
 
-    public function booths() {
-        return $this->hasMany(Booth::class);
+    public function umkms() {
+        return $this->hasMany(UMKM::class);
     }
 
     public function district() {

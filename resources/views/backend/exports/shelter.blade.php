@@ -14,13 +14,13 @@
   </thead>
   <tbody>
       @foreach($shelters as $shelter)
-      @php
-          $ditempati = $shelter->booths()->whereNotNull('umkm_id')->count();
-          $kosong = $shelter->kapasitas - $shelter->booths()->whereNotNull('umkm_id')->count();
-          $berSIP = $shelter->booths()->whereHas('umkm', function ($query) {
-              $query->whereNotNull('nomor_sip');
-          })->count();
-      @endphp
+        @php
+            $ditempati = $shelter->umkms->count();
+            $kosong = $shelter->kapasitas - $ditempati;
+            $berSIP = $shelter->umkms->filter(function ($umkm) {
+            return $umkm->surat_ijin_penempatan === "ada";
+            })->count();
+        @endphp
       <tr>
           <td style="border: 1px black solid;">{{ $loop->iteration }}</td>
           <td style="border: 1px black solid;">{{ $shelter->nama }}</td>
@@ -32,13 +32,13 @@
           <td style="border: 1px black solid;">{{ $ditempati - $berSIP }}</td>
           <td style="border: 1px black solid;">
             @php
-                $boothsWithNotes = $shelter->booths()->with('umkm')->get()->filter(function ($booth) {
-                    return $booth->umkm && !empty($booth->umkm->note);
+                $umkmWithNotes = $shelter->umkms()->get()->filter(function ($umkm) {
+                    return !empty($umkm->note);
                 });
             @endphp
 
-            @foreach($boothsWithNotes as $booth)
-                {{ $booth->umkm->note }}@if(!$loop->last), @endif
+            @foreach($umkmWithNotes as $umkm)
+                {{ $umkm->note }}@if(!$loop->last), @endif
             @endforeach
           </td>
       </tr>

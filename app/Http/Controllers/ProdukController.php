@@ -24,13 +24,6 @@ class ProdukController extends Controller
             });
         }
 
-        if ($request->has('wilayah') && !empty($request->input('wilayah'))) {
-            $wilayah = $request->input('wilayah');
-            $query->whereHas('umkm.shelter.wilayah', function ($q) use ($wilayah) {
-                $q->where('id', $wilayah);
-            });
-        }
-
         if ($request->has('shelter') && !empty($request->input('shelter'))) {
             $shelter = $request->input('shelter');
             $query->whereHas('umkm.shelter', function ($q) use ($shelter) {
@@ -60,7 +53,7 @@ class ProdukController extends Controller
         $produks = $query->latest()->paginate(10);
         $wilayahs = Wilayah::where('status', true)->get();
         $shelters = Shelter::where('status', true)->get();
-        $umkms = UMKM::with('booth')->where('status', true)->get();
+        $umkms = UMKM::with('shelter')->where('status', true)->get();
 
         return view('backend.pages.produk.index', compact(
             'produks',

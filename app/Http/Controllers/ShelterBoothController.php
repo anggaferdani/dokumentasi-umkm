@@ -11,27 +11,22 @@ class ShelterBoothController extends Controller
 {
     public function index($shelterId, Request $request) {
         if ($shelterId) {
-            $query = Booth::with('shelter', 'umkm');
+            $query = UMKM::where('shelter_id', $shelterId);
     
             if ($request->has('search')) {
                 $search = $request->input('search');
                 $query->where(function ($q) use ($search) {
-                    $q->where('nomor_booth', 'like', '%' . $search . '%');
+                    $q->where('nama', 'like', '%' . $search . '%')
+                    ->orWhere('nomor_booth', 'like', '%' . $search . '%');
                 });
             }
+            
             $shelter = Shelter::where('id', $shelterId)->first();
-            $booths = $query->where('shelter_id', $shelterId)->latest()->paginate(10);
-            $boothUmkms = Booth::with('shelter', 'umkm')->where('status', true)->get();
-            $shelters = Shelter::where('status', true)->get();
-            $umkms = UMKM::with('booth.shelter')->where('status', true)->get();
-            $registeredUmkms = $boothUmkms->pluck('umkm.id')->unique();
+            $umkms = $query->latest()->paginate(10);
         
             return view('backend.pages.booth.index', compact(
-                'booths',
                 'shelter',
-                'shelters',
                 'umkms',
-                'registeredUmkms',
             ));
         } else {
             return back();
