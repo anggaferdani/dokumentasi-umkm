@@ -49,9 +49,6 @@ Route::middleware(['auth:web', 'disableBackButton', 'user'])->group(function(){
             Route::resource('umkm', UMKMController::class);
             Route::resource('produk', ProdukController::class);
             Route::get('shelter/{shelterId}/booth', [ShelterBoothController::class, 'index'])->name('shelter.booth.index');
-            Route::post('shelter/{shelterId}/booth/store', [ShelterBoothController::class, 'store'])->name('shelter.booth.store');
-            Route::put('shelter/{shelterId}/booth/{id}/update', [ShelterBoothController::class, 'update'])->name('shelter.booth.update');
-            Route::delete('shelter/{shelterId}/booth/{id}/delete', [ShelterBoothController::class, 'delete'])->name('shelter.booth.delete');
             Route::resource('booth', BoothController::class);
 
             Route::get('/get-subdistricts', [LokasiController::class, 'getSubdistricts']);
