@@ -50,13 +50,23 @@ class UMKMController extends Controller
         $wilayahs = Wilayah::where('status', true)->get();
         $kategoris = Kategori::where('status', true)->get();
         $shelters = Shelter::where('status', true)
-            ->withCount('umkms')
+            ->with(['umkms'])
             ->latest()
             ->get()
             ->map(function ($shelter) {
-                $shelter->is_full = $shelter->umkms_count >= $shelter->kapasitas;
-                $shelter->current_count = $shelter->umkms_count;
+                $shelter->current_count = $shelter->umkms->reduce(function ($carry, $umkm) {
+                    if ($umkm->shift == 'pagi malam') {
+                        return $carry + 2;
+                    } elseif ($umkm->shift == 'pagi' || $umkm->shift == 'malam') {
+                        return $carry + 1;
+                    }
+                    return $carry;
+                }, 0);
+
+                $shelter->is_full = $shelter->current_count >= $shelter->kapasitas;
+
                 $shelter->total_capacity = $shelter->kapasitas;
+
                 return $shelter;
             });
 
