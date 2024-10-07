@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Booth;
 use App\Models\Shelter;
 use App\Models\Wilayah;
 use App\Models\District;
@@ -81,7 +80,7 @@ class ShelterController extends Controller
                 'kelurahan_id' => $request['kelurahan_id'],
             ];
 
-            $shelter = Shelter::create($array);
+            Shelter::create($array);
 
             return redirect()->route('admin.shelter.index')->with('success', 'Success');
         } catch (\Throwable $th) {
@@ -105,11 +104,11 @@ class ShelterController extends Controller
                 'kelurahan_id' => 'required',
             ]);
 
-            $jumlahActiveBooths = $shelter->booths()->where('status', true)->count();
-            $jumlahUMKM = $shelter->booths()->count();
+            $jumlahActiveUMKMs = $shelter->umkms()->where('status', true)->count();
+            $jumlahUMKM = $shelter->umkms()->count();
 
-            if ($request['kapasitas'] < $jumlahActiveBooths) {
-                return back()->with('error', 'Kapasitas tidak boleh kurang dari jumlah booth aktif yang terdaftar di shelter ini (' . $jumlahActiveBooths . ' booth).');
+            if ($request['kapasitas'] < $jumlahActiveUMKMs) {
+                return back()->with('error', 'Kapasitas tidak boleh kurang dari jumlah booth aktif yang terdaftar di shelter ini (' . $jumlahActiveUMKMs . ' booth).');
             }
 
             if ($request['kapasitas'] < $jumlahUMKM) {

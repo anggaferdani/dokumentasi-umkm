@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\UMKM;
-use App\Models\Booth;
 use App\Models\Shelter;
 use Illuminate\Http\Request;
 
