@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserContoller;
 use App\Http\Controllers\UMKMController;
-use App\Http\Controllers\BoothController;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\ProdukController;
@@ -49,7 +48,6 @@ Route::middleware(['auth:web', 'disableBackButton', 'user'])->group(function(){
             Route::resource('umkm', UMKMController::class);
             Route::resource('produk', ProdukController::class);
             Route::get('shelter/{shelterId}/booth', [ShelterBoothController::class, 'index'])->name('shelter.booth.index');
-            Route::resource('booth', BoothController::class);
 
             Route::get('/get-subdistricts', [LokasiController::class, 'getSubdistricts']);
         });
