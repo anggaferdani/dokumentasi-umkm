@@ -71,7 +71,14 @@
             <tbody>
               @foreach ($shelters as $shelter)
                 @php
-                  $ditempati = $shelter->umkms->count();
+                  $ditempati = $shelter->umkms->reduce(function ($carry, $umkm) {
+                    if ($umkm->shift == 'pagi malam') {
+                      return $carry + 2;
+                    } elseif ($umkm->shift == 'pagi' || $umkm->shift == 'malam') {
+                      return $carry + 1;
+                    } 
+                    return $carry;
+                  }, 0);
                   $kosong = $shelter->kapasitas - $ditempati;
                   $berSIP = $shelter->umkms->filter(function ($umkm) {
                     return $umkm->surat_ijin_penempatan === "ada";
