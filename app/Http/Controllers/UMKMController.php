@@ -3,17 +3,64 @@
 namespace App\Http\Controllers;
 
 use App\Models\UMKM;
+use App\Models\Produk;
 use App\Models\Shelter;
 use App\Models\Wilayah;
 use App\Models\Kategori;
 use App\Exports\UMKMExport;
 use Illuminate\Http\Request;
+use App\Exports\ProdukExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
 class UMKMController extends Controller
 {
+    public function produk(Request $request, $id) {
+        $umkm = UMKM::where('id', $id)->first();
+        $query = Produk::where('umkm_id', $umkm->id)->where('status', 1);
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_produk', 'like', '%' . $search . '%')
+                  ->orWhere('deskripsi_produk', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->has('shelter') && !empty($request->input('shelter'))) {
+            $shelter = $request->input('shelter');
+            $query->whereHas('umkm.shelter', function ($q) use ($shelter) {
+                $q->where('id', $shelter);
+            });
+        }
+
+        if ($request->has('umkm') && !empty($request->input('umkm'))) {
+            $umkm = $request->input('umkm');
+            $query->whereHas('umkm', function ($q) use ($umkm) {
+                $q->where('id', $umkm);
+            });
+        }
+
+        if ($request->has('export') && $request->export == 'excel') {
+            $fileName = 'produk-' . now()->format('d-m-Y-H-i-s') . '.xlsx';
+            return Excel::download(new ProdukExport($query->get()), $fileName);
+        }
+    
+        if ($request->has('export') && $request->export == 'pdf') {
+            $fileName = 'produk-' . now()->format('d-m-Y-H-i-s') . '.pdf';
+            $produks = $query->get();
+            $pdf = Pdf::loadView('backend.exports.produk', compact('produks'));
+            return $pdf->download($fileName);
+        }
+
+        $produks = $query->latest()->paginate(10);
+        return view('backend.pages.umkm.produk', compact(
+            'umkm',
+            'produks',
+        ));
+    }
+
     public function index(Request $request) {
         $query = UMKM::with('kategori')->where('status', true);
 
