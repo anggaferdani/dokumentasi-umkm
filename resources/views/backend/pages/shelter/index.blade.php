@@ -95,9 +95,9 @@
                   <td>{{ $ditempati - $berSIP }}</td>
                   <td>
                     <div class="d-flex gap-1">
+                      <a href="{{ route('admin.shelter.booth.index', ['shelterId' => $shelter->id]) }}" class="btn btn-primary">Booth</a>
                       <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $shelter->id }}"><i class="fa-solid fa-pen"></i></button>
                       <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $shelter->id }}"><i class="fa-solid fa-trash"></i></button>
-                      <a href="{{ route('admin.shelter.booth.index', ['shelterId' => $shelter->id]) }}" class="btn btn-primary">Booth</a>
                     </div>
                   </td>
                 </tr>

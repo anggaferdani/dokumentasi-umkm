@@ -68,7 +68,7 @@
               <tr>
                 <th>No.</th>
                 <th>Shelter</th>
-                <th>Nomor Shelter</th>
+                <th>Nomor Booth</th>
                 <th>Nama</th>
                 <th>Shift</th>
                 <th>Jenis Dagangan</th>
@@ -96,6 +96,7 @@
                   <td>{{ $umkm->note ?? '-' }}</td>
                   <td>
                     <div class="d-flex gap-1">
+                      <a href="{{ route('admin.umkm.produk', $umkm->id) }}" class="btn btn-primary">Produk</a>
                       <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $umkm->id }}"><i class="fa-solid fa-pen"></i></button>
                       <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $umkm->id }}"><i class="fa-solid fa-trash"></i></button>
                     </div>

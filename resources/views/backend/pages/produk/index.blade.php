@@ -5,7 +5,7 @@
   <div class="row g-2 align-items-center">
     <div class="col">
       <h2 class="page-title">
-        UMKM
+        Produk
       </h2>
     </div>
     <div class="col-auto ms-auto d-print-none">
@@ -67,7 +67,9 @@
             <thead>
               <tr>
                 <th>No.</th>
+                <th>Shelter</th>
                 <th>UMKM</th>
+                <th>No Booth</th>
                 <th>Foto Produk</th>
                 <th>Nama Produk</th>
                 <th>Deskripsi Produk</th>
@@ -78,7 +80,9 @@
               @foreach ($produks as $produk)
                 <tr>
                   <td>{{ ($produks->currentPage() - 1) * $produks->perPage() + $loop->iteration }}</td>
+                  <td>{{ $produk->umkm->shelter->nama }}</td>
                   <td>{{ $produk->umkm->nama }}</td>
+                  <td>{{ $produk->umkm->nomor_booth }}</td>
                   <td>
                     @if($produk->foto_produk)
                         <img src="/images/produk/foto-produk/{{ $produk->foto_produk }}" alt="" class="img-fluid" width="100">

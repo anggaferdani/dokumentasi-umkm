@@ -5,7 +5,7 @@
   <div class="row g-2 align-items-center">
     <div class="col">
       <h2 class="page-title">
-        Booth
+        Booth Shelter : {{ $shelter->nama }}
       </h2>
     </div>
     <div class="col-auto ms-auto d-print-none">
@@ -50,6 +50,7 @@
                 <th>Shelter</th>
                 <th>UMKM</th>
                 <th>Nomor Booth</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -59,6 +60,11 @@
                   <td>{{ $umkm->shelter->nama }}</td>
                   <td>{{ $umkm->nama ?? '-' }}</td>
                   <td>{{ $umkm->nomor_booth ?? '-' }}</td>
+                  <td>
+                    <div class="d-flex gap-1">
+                      <a href="{{ route('admin.umkm.produk', $umkm->id) }}" class="btn btn-primary">Produk</a>
+                    </div>
+                  </td>
                 </tr>
               @endforeach
             </tbody>

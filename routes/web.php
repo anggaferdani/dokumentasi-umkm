@@ -46,6 +46,7 @@ Route::middleware(['auth:web', 'disableBackButton', 'user'])->group(function(){
             Route::resource('wilayah', WilayahController::class);
             Route::resource('shelter', ShelterController::class);
             Route::resource('umkm', UMKMController::class);
+            Route::get('umkm/{id}/produk', [UMKMController::class, 'produk'])->name('umkm.produk');
             Route::resource('produk', ProdukController::class);
             Route::get('shelter/{shelterId}/booth', [ShelterBoothController::class, 'index'])->name('shelter.booth.index');
 
