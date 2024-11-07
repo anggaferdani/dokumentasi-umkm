@@ -83,7 +83,7 @@ class ProdukController extends Controller
 
             Produk::create($array);
     
-            return redirect()->route('admin.produk.index')->with('success', 'Success');
+            return back()->with('success', 'Success');
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());
         }
@@ -118,7 +118,7 @@ class ProdukController extends Controller
     
             $produk->update($array);
     
-            return redirect()->route('admin.produk.index')->with('success', 'Success');
+            return back()->with('success', 'Success');
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());
         }
@@ -132,7 +132,7 @@ class ProdukController extends Controller
                 'status' => false,
             ]);
 
-            return redirect()->route('admin.produk.index')->with('success', 'Success');
+            return back()->with('success', 'Success');
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());
         }
