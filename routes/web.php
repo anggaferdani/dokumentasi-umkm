@@ -27,7 +27,7 @@ use App\Http\Controllers\AuthenticationController;
 Route::middleware(['web', 'disableBackButton'])->group(function(){
     Route::middleware(['disableRedirectToLoginPage'])->group(function(){
         Route::get('login', [AuthenticationController::class, 'login'])->name('login');
-        Route::post('post/login', [AuthenticationController::class, 'postLogin'])->name('post.login');
+        Route::post('login', [AuthenticationController::class, 'postLogin'])->name('post.login');
     });
     
     Route::get('logout', [AuthenticationController::class, 'logout'])->name('logout');
