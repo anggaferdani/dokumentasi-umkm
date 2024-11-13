@@ -126,7 +126,7 @@
             </select>
             @error('umkm_id')<div class="text-danger">{{ $message }}</div>@enderror
           </div> --}}
-          <input type="hidden" class="" name="umkm_id" placeholder="" value="{{ $produk->umkm_id }}">
+          <input type="hidden" class="" name="umkm_id" placeholder="" value="{{ $umkm->id }}">
           <div class="mb-3">
             <label class="form-label required">Nama Produk</label>
             <input type="text" class="form-control" name="nama_produk" placeholder="Nama Produk">
@@ -176,7 +176,7 @@
             </select>
             @error('umkm_id')<div class="text-danger">{{ $message }}</div>@enderror
           </div> --}}
-          <input type="hidden" class="" name="umkm_id" placeholder="" value="{{ $produk->umkm_id }}">
+          <input type="hidden" class="" name="umkm_id" placeholder="" value="{{ $umkm->id }}">
           <div class="mb-3">
             <label class="form-label required">Nama Produk</label>
             <input type="text" class="form-control" name="nama_produk" placeholder="Nama Produk" value="{{ $produk->nama_produk }}">
