@@ -132,9 +132,9 @@ class UMKMController extends Controller
             $request->validate([
                 'shelter_id' => 'required',
                 'nomor_booth' => [
-                    'required',
+                'required',
                     Rule::unique('umkms')->where(function ($query) use ($request) {
-                        return $query->where('shelter_id', $request->shelter_id);
+                        return $query->where('shelter_id', $request->shelter_id)->where('shift', $request->shift);
                     })
                 ],
                 'nama' => 'required',
@@ -203,7 +203,7 @@ class UMKMController extends Controller
                 'nomor_booth' => [
                     'required',
                     Rule::unique('umkms')->where(function ($query) use ($request) {
-                        return $query->where('shelter_id', $request->shelter_id);
+                        return $query->where('shelter_id', $request->shelter_id)->where('shift', $request->shift);
                     })->ignore($umkm->id)
                 ],
                 'nama' => 'required',
