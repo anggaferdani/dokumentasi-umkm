@@ -24,6 +24,11 @@ use App\Http\Controllers\AuthenticationController;
 |
 */
 
+Route::get('forgot-password', [AuthenticationController::class, 'forgotPassword'])->name('forgot-password');
+Route::post('forgot-password', [AuthenticationController::class, 'forgotPasswordPost'])->name('forgot-password-post');
+Route::get('reset-password/{id}', [AuthenticationController::class, 'resetPassword'])->name('reset-password');
+Route::post('reset-password/{id}', [AuthenticationController::class, 'resetPasswordPost'])->name('reset-password-post');
+
 Route::middleware(['web', 'disableBackButton'])->group(function(){
     Route::middleware(['disableRedirectToLoginPage'])->group(function(){
         Route::get('login', [AuthenticationController::class, 'login'])->name('login');

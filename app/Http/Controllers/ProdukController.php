@@ -70,7 +70,7 @@ class ProdukController extends Controller
             $request->validate([
                 'umkm_id' => 'required',
                 'nama_produk' => 'required',
-                'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg',
+                'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg|max:5120',
                 'deskripsi_produk' => 'required',
             ]);
     
@@ -101,7 +101,7 @@ class ProdukController extends Controller
                 'umkm_id' => 'required',
                 'kategori_id' => 'required',
                 'nama_produk' => 'required',
-                'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg',
+                'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg|max:5120',
                 'deskripsi_produk' => 'required',
             ]);
     

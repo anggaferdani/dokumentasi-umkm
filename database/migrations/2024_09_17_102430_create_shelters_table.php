@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('nama');
             $table->string('kapasitas');
             $table->text('alamat')->nullable();
-            $table->string('kelurahan')->nullable();
             $table->integer('kecamatan_id')->nullable();
             $table->integer('kelurahan_id')->nullable();
             $table->boolean('status')->default(true);

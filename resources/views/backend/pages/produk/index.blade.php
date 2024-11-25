@@ -10,7 +10,7 @@
     </div>
     <div class="col-auto ms-auto d-print-none">
       <div class="btn-list">
-        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create new report</a>
+        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
         <a href="{{ route('admin.produk.index', array_merge(request()->query(), ['export' => 'excel'])) }}" class="btn btn-success">Excel</a>
         <a href="{{ route('admin.produk.index', array_merge(request()->query(), ['export' => 'pdf'])) }}" class="btn btn-danger">PDF</a>
       </div>
@@ -145,6 +145,7 @@
           <div class="mb-3">
             <label class="form-label">Foto Produk</label>
             <input type="file" class="form-control" name="foto_produk" placeholder="Foto Produk">
+            <div class="text-secondary small">Maksimal ukuran file adalah 5MB dan hanya boleh berupa file dengan format PNG, JPG, atau JPEG.</div>
             @error('foto_produk')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
@@ -195,6 +196,7 @@
             <label class="form-label">Foto Produk</label>
             <input type="file" class="form-control" name="foto_produk" placeholder="Foto Produk" value="{{ $produk->foto_produk }}">
             <div><a href="/images/produk/foto-produk/{{ $produk->foto_produk }}" target="_blank">{{ $produk->foto_produk }}</a></div>
+            <div class="text-secondary small">Maksimal ukuran file adalah 5MB dan hanya boleh berupa file dengan format PNG, JPG, atau JPEG.</div>
             @error('foto_produk')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
