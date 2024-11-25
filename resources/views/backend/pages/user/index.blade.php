@@ -10,7 +10,7 @@
     </div>
     <div class="col-auto ms-auto d-print-none">
       <div class="btn-list">
-        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create new report</a>
+        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
       </div>
     </div>
   </div>
@@ -104,7 +104,13 @@
           <div class="mb-3">
             <label class="form-label required">Password</label>
             <input type="password" class="form-control" name="password" placeholder="Password">
+            <div class="text-secondary small">Password harus memiliki minimal 8 karakter, mencakup huruf, angka, dan simbol.</div>
             @error('password')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password">
+            @error('confirm_password')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
         <div class="modal-footer">
@@ -143,7 +149,13 @@
           <div class="mb-3">
             <label class="form-label">Password</label>
             <input type="password" class="form-control" name="password" placeholder="Password">
+            <div class="text-secondary small">Password harus memiliki minimal 8 karakter, mencakup huruf, angka, dan simbol.</div>
             @error('password')<div class="text-danger">{{ $message }}</div>@enderror
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password">
+            @error('confirm_password')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
         <div class="modal-footer">

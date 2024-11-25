@@ -10,6 +10,7 @@
     <link href="{{ asset('tabler/dist/css/tabler-payments.min.css?1692870487') }}" rel="stylesheet"/>
     <link href="{{ asset('tabler/dist/css/tabler-vendors.min.css?1692870487') }}" rel="stylesheet"/>
     <link href="{{ asset('tabler/dist/css/demo.min.css?1692870487') }}" rel="stylesheet"/>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
       @import url('https://rsms.me/inter/inter.css');
       :root {
@@ -27,5 +28,6 @@
     </div>
     <script src="{{ asset('tabler/dist/js/tabler.min.js?1692870487') }}" defer></script>
     <script src="{{ asset('tabler/dist/js/demo.min.js?1692870487') }}" defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   </body>
 </html>

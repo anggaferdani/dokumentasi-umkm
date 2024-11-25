@@ -28,13 +28,20 @@ class UserContoller extends Controller
     public function create() {}
 
     public function store(Request $request) {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|regex:/[A-Za-z]/|regex:/[0-9]/|regex:/[\W_]/',
+            'confirm_password' => 'required|same:password',
+        ], [
+            'password.required' => 'The password is required.',
+            'password.min' => 'The password must be at least 8 characters long.',
+            'password.regex' => 'The password must contain at least one letter, one number, and one special character.',
+            'confirm_password.required' => 'Please confirm your password.',
+            'confirm_password.same' => 'The password confirmation does not match.',
+        ]);
+
         try {
-            $request->validate([
-                'name' => 'required',
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required',
-            ]);
-            
             $array = [
                 'name' => $request['name'],
                 'email' => $request['email'],
@@ -60,6 +67,12 @@ class UserContoller extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$user->id.",id",
+            'password' => 'nullable|min:8|regex:/[A-Za-z]/|regex:/[0-9]/|regex:/[\W_]/',
+            'confirm_password' => 'nullable|same:password',
+        ], [
+            'password.min' => 'The password must be at least 8 characters long.',
+            'password.regex' => 'The password must contain at least one letter, one number, and one special character.',
+            'confirm_password.same' => 'The password confirmation does not match.',
         ]);
 
         try {

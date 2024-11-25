@@ -9,7 +9,8 @@
   </div>
   <div class="card card-md">
     <div class="card-body">
-      <h2 class="h2 text-center mb-4">Login</h2>
+      <h2 class="h2 text-center mb-4">Reset Password</h2>
+      <div class="mb-3">Masukkan kata sandi baru untuk akun Anda. Setelah diperbarui, gunakan kata sandi ini untuk masuk ke akun Anda.</div>
       @if(Session::get('success'))
         <div class="alert alert-important alert-success" role="alert">
           {{ Session::get('success') }}
@@ -20,35 +21,25 @@
           {{ Session::get('error') }}
         </div>
       @endif
-      <form action="{{ route('post.login') }}" method="post">
+      <form action="{{ route('reset-password-post', $user->id) }}" method="post">
         @csrf
         <div class="mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-control" name="email" placeholder="Email">
-          @error('email')<div class="text-danger">{{ $message }}</div>@enderror
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Password</label>
-          <input type="password" class="form-control" name="password" placeholder="Password">
+          <label class="form-label">New Password</label>
+          <input type="password" class="form-control" name="password" placeholder="New Password">
           <div class="text-secondary small">Password harus memiliki minimal 8 karakter, mencakup huruf, angka, dan simbol.</div>
           @error('password')<div class="text-danger">{{ $message }}</div>@enderror
         </div>
         <div class="mb-3">
-          <label class="form-label">Confirm Password</label>
-          <input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password">
+          <label class="form-label">Confirm New Password</label>
+          <input type="password" class="form-control" name="confirm_password" placeholder="Confirm New Password">
           @error('confirm_password')<div class="text-danger">{{ $message }}</div>@enderror
         </div>
-        <div class="mb-3">
-          <label class="form-label">ReCaptcha</label>
-          <div class="g-recaptcha" data-sitekey="{{ env('GOOGLE_RECAPTCHA_KEY') }}"></div>
-          @error('g-recaptcha-response')<div class="text-danger">{{ $message }}</div>@enderror
-        </div>
         <div class="form-footer">
-          <button type="submit" class="btn btn-primary w-100">Login</button>
+          <button type="submit" class="btn btn-primary w-100">Submit</button>
         </div>
       </form>
     </div>
   </div>
-  <div class="text-center mt-3">Lupa kata sandi? <a href="{{ route('forgot-password') }}">Klik di sini untuk reset</a></div>
+  <div class="text-center mt-3"><a href="{{ route('login') }}">Back to Login</a></div>
 </div>
 @endsection
