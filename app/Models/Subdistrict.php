@@ -18,7 +18,7 @@ class Subdistrict extends Model
 
     public function district()
     {
-        return $this->belongsTo(District::class, 'dis_id');
+        return $this->belongsTo(District::class, 'dis_id', 'dis_id');
     }
 
     public function shelters()
