@@ -87,7 +87,7 @@
                 <tr>
                   <td>{{ ($shelters->currentPage() - 1) * $shelters->perPage() + $loop->iteration }}</td>
                   <td>{{ $shelter->nama }}</td>
-                  <td>{{ $shelter->alamat ?? '-' }}, {{ $shelter->district->dis_name ?? '-' }}, {{ $shelter->subdistrict->subdis_name }}</td>
+                  <td>{{ $shelter->alamat ?? '-' }}, {{ $shelter->subdistrict->district->dis_name ?? '-' }}, {{ $shelter->subdistrict->subdis_name }}</td>
                   <td>{{ $ditempati }}</td>
                   <td>{{ $kosong }}</td>
                   <td>{{ $shelter->kapasitas }}</td>
@@ -176,6 +176,9 @@
 </div>
 
 @foreach ($shelters as $shelter)
+@php
+  $kelurahan = App\Models\Subdistrict::where('subdis_id', $shelter->kelurahan_id)->first();
+@endphp
 <div class="modal modal-blur fade" id="edit{{ $shelter->id }}" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -208,7 +211,7 @@
               <select class="form-select districtEdit" name="kecamatan_id" id="district{{ $shelter->id }}">
                 <option disabled selected value="">Pilih</option>
                 @foreach($districts as $district)
-                    <option value="{{ $district->dis_id }}" {{ $district->dis_id == $shelter->kecamatan_id ? 'selected' : '' }}>{{ $district->dis_name }}</option>
+                    <option value="{{ $district->dis_id }}" {{ $district->dis_id == $kelurahan->dis_id ? 'selected' : '' }}>{{ $district->dis_name }}</option>
                 @endforeach
               </select>
               @error('kecamatan_id')<div class="text-danger">{{ $message }}</div>@enderror

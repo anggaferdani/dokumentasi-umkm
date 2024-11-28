@@ -14,7 +14,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class ShelterController extends Controller
 {
     public function index(Request $request) {
-        $query = Shelter::with('district', 'subdistrict')->where('status', true);
+        $query = Shelter::with('subdistrict.district', 'subdistrict')->where('status', true);
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -22,13 +22,6 @@ class ShelterController extends Controller
                 $q->where('nama', 'like', '%' . $search . '%');
             });
         }
-
-        // if ($request->has('wilayah') && !empty($request->input('wilayah'))) {
-        //     $wilayah = $request->input('wilayah');
-        //     $query->whereHas('wilayah', function ($q) use ($wilayah) {
-        //         $q->where('id', $wilayah);
-        //     });
-        // }
 
         if ($request->has('export') && $request->export == 'excel') {
             $fileName = 'shelter-' . now()->format('d-m-Y-H-i-s') . '.xlsx';
@@ -66,7 +59,6 @@ class ShelterController extends Controller
                 'nama' => 'required',
                 'kapasitas' => 'required|integer',
                 'alamat' => 'required',
-                'kecamatan_id' => 'required',
                 'kelurahan_id' => 'required',
             ]);
     
@@ -76,7 +68,6 @@ class ShelterController extends Controller
                 'kapasitas' => $request['kapasitas'],
                 'alamat' => $request['alamat'],
                 'kelurahan' => $request['kelurahan'],
-                'kecamatan_id' => $request['kecamatan_id'],
                 'kelurahan_id' => $request['kelurahan_id'],
             ];
 
@@ -100,7 +91,6 @@ class ShelterController extends Controller
                 'nama' => 'required',
                 'kapasitas' => 'required|integer',
                 'alamat' => 'required',
-                'kecamatan_id' => 'required',
                 'kelurahan_id' => 'required',
             ]);
 
@@ -120,7 +110,6 @@ class ShelterController extends Controller
                 'kapasitas' => $request['kapasitas'],
                 'alamat' => $request['alamat'],
                 'kelurahan' => $request['kelurahan'],
-                'kecamatan_id' => $request['kecamatan_id'],
                 'kelurahan_id' => $request['kelurahan_id'],
             ];
     

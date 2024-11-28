@@ -31,7 +31,7 @@
       <tr>
           <td style="border: 1px black solid;">{{ $loop->iteration }}</td>
           <td style="border: 1px black solid;">{{ $shelter->nama }}</td>
-          <td style="border: 1px black solid;">{{ $shelter->alamat ?? '-' }}, {{ $shelter->district->dis_name ?? '-' }}, {{ $shelter->subdistrict->subdis_name }}</td>
+          <td style="border: 1px black solid;">{{ $shelter->alamat ?? '-' }}, {{ $shelter->subdistrict->district->dis_name ?? '-' }}, {{ $shelter->subdistrict->subdis_name }}</td>
           <td style="border: 1px black solid;">{{ $ditempati }}</td>
           <td style="border: 1px black solid;">{{ $kosong }}</td>
           <td style="border: 1px black solid;">{{ $shelter->kapasitas }}</td>

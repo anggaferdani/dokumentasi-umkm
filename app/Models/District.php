@@ -23,7 +23,7 @@ class District extends Model
 
     public function subdistricts()
     {
-        return $this->hasMany(Subdistrict::class, 'dis_id');
+        return $this->hasMany(Subdistrict::class, 'dis_id', 'dis_id');
     }
 
     public function shelters()
