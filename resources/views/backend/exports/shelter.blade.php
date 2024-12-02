@@ -1,3 +1,4 @@
+<h2 style="margin-bottom: 10px;">List Data Shelter</h2>
 <table style="width: 100%; border-collapse: collapse;">
   <thead>
       <tr>
@@ -20,7 +21,7 @@
                     return $carry + 2;
                 } elseif ($umkm->shift == 'pagi' || $umkm->shift == 'malam') {
                     return $carry + 1;
-                } 
+                }
                 return $carry;
                 }, 0);
             $kosong = $shelter->kapasitas - $ditempati;
