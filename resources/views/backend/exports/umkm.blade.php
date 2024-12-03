@@ -1,4 +1,10 @@
-<h2 style="margin-bottom: 10px;">List Data UMKM</h2>
+<table style="width: 100%; border-collapse: collapse;">
+  <thead>
+      <tr>
+          <th style="border: 1px black solid; text-align: center; vertical-align: middle;" colspan="13"><h2>List Data UMKM</h2></th>
+      </tr>
+  </thead>
+</table>
 <table style="width: 100%; border-collapse: collapse;">
   <thead>
       <tr>
