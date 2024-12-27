@@ -10,7 +10,7 @@
     </div>
     <div class="col-auto ms-auto d-print-none">
       <div class="btn-list">
-        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
+        <a href="{{ route('admin.umkm.create') }}" class="btn btn-primary">Create</a>
         <a href="{{ route('admin.umkm.index', array_merge(request()->query(), ['export' => 'excel'])) }}" class="btn btn-success">Excel</a>
         <a href="{{ route('admin.umkm.index', array_merge(request()->query(), ['export' => 'pdf'])) }}" class="btn btn-danger">PDF</a>
       </div>
@@ -27,9 +27,18 @@
           {{ Session::get('success') }}
         </div>
       @endif
-      @if(Session::get('error'))
+      @if(Session::get('errror'))
         <div class="alert alert-important alert-danger" role="alert">
-          {{ Session::get('error') }}
+          {{ Session::get('errror') }}
+        </div>
+      @endif
+      @if($errors->any())
+        <div class="alert alert-danger alert-important">
+          <ul>
+            @foreach($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
         </div>
       @endif
       <div class="card">
@@ -73,8 +82,8 @@
                 <th>Shift</th>
                 <th>Jenis Dagangan</th>
                 <th>Status</th>
-                <th>Note</th>
                 <th>Action</th>
+                <th>Note</th>
               </tr>
             </thead>
             <tbody>
@@ -86,6 +95,7 @@
                   <td>{{ $umkm->nama }}</td>
                   <td>{{ $umkm->shift }}</td>
                   <td>{{ $umkm->jenis_dagangan }}</td>
+                  <td>{{ $umkm->note ?? '-' }}</td>
                   <td>
                     @if($umkm->aktif == true)
                       <span class="badge bg-primary text-white">Aktif</span>
@@ -93,11 +103,10 @@
                       <span class="badge bg-danger text-white">Non Aktif</span>
                     @endif
                   </td>
-                  <td>{{ $umkm->note ?? '-' }}</td>
                   <td>
                     <div class="d-flex gap-1">
                       <a href="{{ route('admin.umkm.produk', $umkm->id) }}" class="btn btn-primary">Produk</a>
-                      <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $umkm->id }}"><i class="fa-solid fa-pen"></i></button>
+                      <a href="{{ route('admin.umkm.edit', $umkm->id) }}" class="btn btn-icon btn-primary"><i class="fa-solid fa-pen"></i></a>
                       <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $umkm->id }}"><i class="fa-solid fa-trash"></i></button>
                     </div>
                   </td>
@@ -120,284 +129,8 @@
   </div>
 </div>
 
-<div class="modal modal-blur fade" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <form action="{{ route('admin.umkm.store') }}" method="POST" class="">
-        @csrf
-        <div class="modal-header">
-          <h5 class="modal-title">Create</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label required">Shelter</label>
-            <select class="form-select" name="shelter_id">
-              <option disabled selected value="">Pilih</option>
-              @foreach($shelters as $shelter)
-                <option value="{{ $shelter->id }}" 
-                  @if($shelter->is_full) disabled @endif>
-                  {{ $shelter->nama }} 
-                  @if($shelter->is_full)
-                      {{ $shelter->current_count }}/{{ $shelter->total_capacity }} *Kapasitas Full
-                  @else
-                      {{ $shelter->current_count }}/{{ $shelter->total_capacity }}
-                  @endif
-                </option>
-              @endforeach
-            </select>
-            @error('shelter_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Nomor Booth</label>
-            <input type="number" class="form-control" name="nomor_booth" placeholder="Nomor Booth">
-            @error('nomor_booth')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Nama</label>
-            <input type="text" class="form-control" name="nama" placeholder="Nama">
-            @error('nama')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <div class="row">
-              <div class="col-6">
-                <label class="form-label required">Tempat Lahir</label>
-                <input type="text" class="form-control" name="tempat_lahir" placeholder="Tempat Lahir">
-                @error('tempat_lahir')<div class="text-danger">{{ $message }}</div>@enderror
-              </div>
-              <div class="col-6">
-                <label class="form-label required">Tanggal Lahir</label>
-                <input type="date" class="form-control" name="tanggal_lahir" placeholder="Tanggal Lahir">
-                @error('tanggal_lahir')<div class="text-danger">{{ $message }}</div>@enderror
-              </div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Alamat</label>
-            <textarea class="form-control" name="alamat" rows="3" placeholder="Alamat"></textarea>
-            @error('alamat')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Shift</label>
-            <select class="form-select" name="shift">
-              <option disabled selected value="">Pilih</option>
-              <option value="pagi">Pagi</option>
-              <option value="malam">Malam</option>
-              <option value="pagi malam">Pagi Malam</option>
-            </select>
-            @error('shift')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Surat Ijin Penempatan</label>
-            <select class="form-select" name="surat_ijin_penempatan">
-              <option disabled selected value="">Pilih</option>
-              <option value="ada">Ada</option>
-              <option value="tidak">Tidak</option>
-            </select>
-            @error('surat_ijin_penempatan')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Retribusi</label>
-            <select class="form-select" name="retribusi">
-              <option disabled selected value="">Pilih</option>
-              <option value="lancar">Lancar</option>
-              <option value="tidak lancar">Tidak Lancar</option>
-            </select>
-            @error('retribusi')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Kategori</label>
-            <select class="form-select" name="kategori_id">
-              <option disabled selected value="">Pilih</option>
-              @foreach($kategoris as $kategori)
-                  <option value="{{ $kategori->id }}">{{ $kategori->kategori }}</option>
-              @endforeach
-            </select>
-            @error('kategori_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Jenis Dagangan</label>
-            <input type="text" class="form-control" name="jenis_dagangan" placeholder="Jenis Dagangan">
-            @error('jenis_dagangan')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Nomor SIP</label>
-            <input type="text" class="form-control" name="nomor_sip" placeholder="Nomor SIP">
-            @error('nomor_sip')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Valid SIP</label>
-            <input type="text" class="form-control" name="valid_sip" placeholder="Valid SIP">
-            @error('valid_sip')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Status Aktif</label>
-            <select class="form-select" name="aktif">
-              <option disabled selected value="">Pilih</option>
-              <option value="1">Aktif</option>
-              <option value="0">Non Aktif</option>
-            </select>
-            @error('aktif')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Note</label>
-            <textarea class="form-control" name="note" rows="3" placeholder="Note"></textarea>
-            @error('note')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-            Cancel
-          </a>
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
 @foreach ($umkms as $umkm)
-<div class="modal modal-blur fade" id="edit{{ $umkm->id }}" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <form action="{{ route('admin.umkm.update', $umkm->id) }}" method="POST" class="">
-        @csrf
-        @method('PUT')
-        <div class="modal-header">
-          <h5 class="modal-title">Edit</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label required">Shelter</label>
-            <select class="form-select" name="shelter_id">
-              <option disabled selected value="">Pilih</option>
-              @foreach($shelters as $shelter)
-                <option value="{{ $shelter->id }}" 
-                  @if($shelter->is_full && $umkm->shelter_id != $shelter->id) 
-                    disabled 
-                  @endif
-                  @if($umkm->shelter_id == $shelter->id) 
-                      selected 
-                  @endif>
-                  {{ $shelter->nama }} 
-                  ({{ $shelter->current_count }}/{{ $shelter->total_capacity }}) @if($shelter->is_full && $umkm->shelter_id != $shelter->id) *Kapasitas Full @endif
-                </option>
-              @endforeach
-            </select>
-            @error('shelter_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Nomor Booth</label>
-            <input type="text" class="form-control" name="nomor_booth" placeholder="Nomor Booth" value="{{ $umkm->nomor_booth }}">
-            @error('nomor_booth')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Nama</label>
-            <input type="text" class="form-control" name="nama" placeholder="Nama" value="{{ $umkm->nama }}">
-            @error('nama')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <div class="row">
-              <div class="col-6">
-                <label class="form-label required">Tempat Lahir</label>
-                <input type="text" class="form-control" name="tempat_lahir" placeholder="Tempat Lahir" value="{{ $umkm->tempat_lahir }}">
-                @error('tempat_lahir')<div class="text-danger">{{ $message }}</div>@enderror
-              </div>
-              <div class="col-6">
-                <label class="form-label required">Tanggal Lahir</label>
-                <input type="date" class="form-control" name="tanggal_lahir" placeholder="Tanggal Lahir" value="{{ $umkm->tanggal_lahir }}">
-                @error('tanggal_lahir')<div class="text-danger">{{ $message }}</div>@enderror
-              </div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Alamat</label>
-            <textarea class="form-control" name="alamat" rows="3" placeholder="Alamat">{{ $umkm->alamat }}</textarea>
-            @error('alamat')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Shift</label>
-            <select class="form-select" name="shift">
-              <option disabled selected value="">Pilih</option>
-              <option value="pagi" @if($umkm->shift == 'pagi') @selected(true) @endif>Pagi</option>
-              <option value="malam" @if($umkm->shift == 'malam') @selected(true) @endif>Malam</option>
-              <option value="pagi malam" @if($umkm->shift == 'pagi malam') @selected(true) @endif>Pagi Malam</option>
-            </select>
-            @error('shift')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Surat Ijin Penempatan</label>
-            <select class="form-select" name="surat_ijin_penempatan">
-              <option disabled selected value="">Pilih</option>
-              <option value="ada" @if($umkm->surat_ijin_penempatan == 'ada') @selected(true) @endif>Ada</option>
-              <option value="tidak" @if($umkm->surat_ijin_penempatan == 'tidak') @selected(true) @endif>Tidak</option>
-            </select>
-            @error('surat_ijin_penempatan')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Retribusi</label>
-            <select class="form-select" name="retribusi">
-              <option disabled selected value="">Pilih</option>
-              <option value="lancar" @if($umkm->retribusi == 'lancar') @selected(true) @endif>Lancar</option>
-              <option value="tidak lancar" @if($umkm->retribusi == 'tidak lancar') @selected(true) @endif>Tidak Lancar</option>
-            </select>
-            @error('retribusi')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Kategori</label>
-            <select class="form-select" name="kategori_id">
-              <option disabled selected value="">Pilih</option>
-              @foreach($kategoris as $kategori)
-                <option value="{{ $kategori->id }}" @if($umkm->kategori_id == $kategori->id) @selected(true) @endif>{{ $kategori->kategori }}</option>
-              @endforeach
-            </select>
-            @error('kategori_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Jenis Dagangan</label>
-            <input type="text" class="form-control" name="jenis_dagangan" placeholder="Jenis Dagangan" value="{{ $umkm->jenis_dagangan }}">
-            @error('jenis_dagangan')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Nomor SIP</label>
-            <input type="text" class="form-control" name="nomor_sip" placeholder="Nomor SIP" value="{{ $umkm->nomor_sip }}">
-            @error('nomor_sip')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Valid SIP</label>
-            <input type="text" class="form-control" name="valid_sip" placeholder="Valid SIP" value="{{ $umkm->valid_sip }}">
-            @error('valid_sip')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Status Aktif</label>
-            <select class="form-select" name="aktif">
-              <option disabled selected value="">Pilih</option>
-              <option value="1" @if($umkm->aktif == 1) @selected(true) @endif>Aktif</option>
-              <option value="0" @if($umkm->aktif == 0) @selected(true) @endif>Non Aktif</option>
-            </select>
-            @error('aktif')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Note</label>
-            <textarea class="form-control" name="note" rows="3" placeholder="Note">{{ $umkm->note }}</textarea>
-            @error('note')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-            Cancel
-          </a>
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-@endforeach
-
-@foreach ($umkms as $umkm)
-<div class="modal modal-blur fade" id="delete{{ $umkm->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="delete{{ $umkm->id }}" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

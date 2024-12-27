@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserContoller;
 use App\Http\Controllers\UMKMController;
@@ -45,13 +46,21 @@ Route::middleware(['auth:web', 'disableBackButton', 'user'])->group(function(){
     
     Route::middleware(['admin'])->group(function(){
         Route::prefix('admin')->name('admin.')->group(function(){
+            Route::get('/profile', [AuthenticationController::class, 'profile'])->name('profile');
+            Route::put('/profile/{id}/update', [AuthenticationController::class, 'profileUpdate'])->name('profile.update');
             Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
             Route::resource('user', UserContoller::class);
+            Route::resource('admin', AdminController::class);
             Route::resource('kategori', KategoriController::class);
             Route::resource('wilayah', WilayahController::class);
             Route::resource('shelter', ShelterController::class);
             Route::resource('umkm', UMKMController::class);
             Route::get('umkm/{id}/produk', [UMKMController::class, 'produk'])->name('umkm.produk');
+            Route::get('umkm/{id}/produk/create', [UMKMController::class, 'produkCreate'])->name('umkm.produk.create');
+            Route::post('umkm/{id}/produk/store', [UMKMController::class, 'produkStore'])->name('umkm.produk.store');
+            Route::get('umkm/{id}/produk/{produk_id}/edit', [UMKMController::class, 'produkEdit'])->name('umkm.produk.edit');
+            Route::put('umkm/{id}/produk/{produk_id}/update', [UMKMController::class, 'produkUpdate'])->name('umkm.produk.update');
+            Route::delete('umkm/{id}/produk/{produk_id}/delete', [UMKMController::class, 'produkDestroy'])->name('umkm.produk.destroy');
             Route::resource('produk', ProdukController::class);
             Route::get('shelter/{shelterId}/booth', [ShelterBoothController::class, 'index'])->name('shelter.booth.index');
 

@@ -43,12 +43,10 @@ class FrontController extends Controller
         }
 
         $produks = $query->latest()->paginate(10);
-        $wilayahs = Wilayah::where('status', true)->get();
         $shelters = Shelter::where('status', true)->get();
         $umkms = UMKM::where('status', true)->get();
         return view('frontend.pages.produk', compact(
             'produks',
-            'wilayahs',
             'shelters',
             'umkms',
         ));

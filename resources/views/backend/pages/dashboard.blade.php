@@ -18,6 +18,20 @@
 @endsection
 @section('content')
 <div class="container-xl">
+  @php
+    $passwordLastChanged = auth()->user()->password_last_changed;
+    $now = \Carbon\Carbon::now();
+    $passwordAge = $now->diffInMonths($passwordLastChanged);
+    $isPasswordCloseToExpiration = ($passwordAge == 2 && $now->diffInDays($passwordLastChanged) >= 50);
+  @endphp
+
+  @if ($isPasswordCloseToExpiration)
+  <div class="alert alert-important alert-danger" role="alert">
+    Password Anda akan kadaluarsa pada tanggal <strong>{{ \Carbon\Carbon::parse(auth()->user()->password_last_changed)->addMonths(3)->format('d M Y') }}</strong>. 
+    Demi keamanan akun Anda, harap segera mengubah password di bagian <a href="{{ route('admin.profile') }}" class="text-white fw-bold text-decoration-underline">Profile</a> atau melalui halaman <a href="{{ route('reset-password', ['id' => Crypt::encrypt(auth()->user()->id)]) }}" class="text-white fw-bold text-decoration-underline">Reset Password</a>.
+  </div>
+  @endif
+
   <div class="row row-cards">
     <div class="col-md-4">
       <div class="card">
@@ -117,99 +131,108 @@
             </div>
             <div class="col">
               <div class="font-weight-medium">
-                Total UMKM Ber Note
+                Total Produk UMKM
               </div>
               <div class="text-secondary">
-                {{ $totalUMKMBerNote }}
+                {{ $totalProducts }}
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-md-6 col-lg-4">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">UMKM</h3>
+    <div class="col-sm-6 col-lg-4">
+      <div class="card card-sm">
+        <div class="card-body">
+          <canvas id="umkmPieChart"></canvas>
         </div>
-        <table class="table card-table table-vcenter">
-          <thead>
-            <tr>
-              <th>Keterangan</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>UMKM Ber Retribusi Lancar</td>
-              <td>{{ $totalUMKMBerRetribusiLancar }}</td>
-            </tr>
-            <tr>
-              <td>UMKM Ber Retribusi Tidak Lancar</td>
-              <td>{{ $totalUMKMBerRetribusiTidakLancar }}</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
-    <div class="col-md-6 col-lg-8">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Shelter</h3>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-vcenter card-table table-striped">
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Nama Shelter</th>
-                <th>Ditempati</th>
-                <th>Kosong</th>
-                <th>Total</th>
-                <th>Ber SIP</th>
-                <th>Selisih</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach ($shelters as $shelter)
-              @php
-                $ditempati = $shelter->umkms->reduce(function ($carry, $umkm) {
-                  if ($umkm->shift == 'pagi malam') {
-                    return $carry + 2;
-                  } elseif ($umkm->shift == 'pagi' || $umkm->shift == 'malam') {
-                    return $carry + 1;
-                  } 
-                  return $carry;
-                }, 0);
-                $kosong = $shelter->kapasitas - $ditempati;
-                $berSIP = $shelter->umkms->filter(function ($umkm) {
-                  return $umkm->surat_ijin_penempatan === "ada";
-                })->count();
-              @endphp
-                <tr>
-                  <td>{{ ($shelters->currentPage() - 1) * $shelters->perPage() + $loop->iteration }}</td>
-                  <td>{{ $shelter->nama }}</td>
-                  <td>{{ $ditempati }}</td>
-                  <td>{{ $kosong }}</td>
-                  <td>{{ $shelter->kapasitas }}</td>
-                  <td>{{ $berSIP }}</td>
-                  <td>{{ $ditempati - $berSIP }}</td>
-                </tr>
-              @endforeach
-            </tbody>
-          </table>
-        </div>
-        <div class="card-footer d-flex align-items-center">
-          <ul class="pagination m-0 ms-auto">
-            @if($shelters->hasPages())
-              {{ $shelters->appends(request()->query())->links('pagination::bootstrap-4') }}
-            @else
-              <li class="page-item">No more records</li>
-            @endif
-          </ul>
+    <div class="col-sm-6 col-lg-8">
+      <div class="card card-sm">
+        <div class="card-body">
+          <canvas id="umkmShelterBarChart"></canvas>
         </div>
       </div>
     </div>
   </div>
 </div>
 @endsection
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  var ctxPie = document.getElementById('umkmPieChart').getContext('2d');
+  var umkmPieChart = new Chart(ctxPie, {
+    type: 'pie',
+    data: {
+      labels: ['UMKM Aktif', 'UMKM Tidak Aktif'],
+      datasets: [{
+        label: 'Total UMKM',
+        data: [{{ $totalUMKMAktif }}, {{ $totalUMKMTidakAktif }}],
+        backgroundColor: ['#4299e1', '#d63939'],
+        borderColor: ['#4299e1', '#d63939'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        tooltip: {
+          callbacks: {
+            label: function(tooltipItem) {
+              return tooltipItem.label + ': ' + tooltipItem.raw + ' UMKM';
+            }
+          }
+        }
+      }
+    }
+  });
+  var ctx = document.getElementById('umkmShelterBarChart').getContext('2d');
+    var umkmShelterBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($shelterNames) !!},
+            datasets: [{
+                label: 'Jumlah UMKM per Shelter',
+                data: {!! json_encode($umkmCounts) !!},
+                backgroundColor: '#4299e1',
+                borderColor: '#4299e1',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.label + ': ' + tooltipItem.raw + ' UMKM';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Jumlah UMKM'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Shelter'
+                    }
+                }
+            }
+        }
+    });
+</script>
+@endpush

@@ -11,7 +11,7 @@ class LokasiController extends Controller
 {
     public function getSubdistricts(Request $request){
         $districtId = $request->input('district_id');
-        $subdistricts = Subdistrict::where('dis_id', $districtId)->get();
+        $subdistricts = Subdistrict::where('district_id', $districtId)->get();
         return response()->json($subdistricts);
     }
 }

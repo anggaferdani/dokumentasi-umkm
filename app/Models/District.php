@@ -10,24 +10,14 @@ class District extends Model
 {
     use HasFactory;
 
-    protected $table = 'districts';
+    protected $table = 'reg_districts';
 
     protected $primaryKey = 'id';
 
     protected $guarded = [];
 
-    public function city()
-    {
-        return $this->belongsTo(City::class, 'city_id');
-    }
-
     public function subdistricts()
     {
-        return $this->hasMany(Subdistrict::class, 'dis_id', 'dis_id');
-    }
-
-    public function shelters()
-    {
-        return $this->hasMany(Shelter::class, 'kecamatan_id', 'dis_id');
+        return $this->hasMany(Subdistrict::class);
     }
 }
