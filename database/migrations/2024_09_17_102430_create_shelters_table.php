@@ -13,12 +13,10 @@ return new class extends Migration
     {
         Schema::create('shelters', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('wilayah_id');
-            $table->foreign('wilayah_id')->references('id')->on('wilayahs')->onDelete('cascade');
             $table->string('nama');
             $table->string('kapasitas');
             $table->text('alamat')->nullable();
-            $table->integer('kelurahan_id')->nullable();
+            $table->bigInteger('kelurahan_id')->nullable();
             $table->boolean('status')->default(true);
             $table->timestamps();
         });

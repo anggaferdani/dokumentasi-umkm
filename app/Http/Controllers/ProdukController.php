@@ -51,27 +51,42 @@ class ProdukController extends Controller
         }
 
         $produks = $query->latest()->paginate(10);
-        $wilayahs = Wilayah::where('status', true)->get();
         $shelters = Shelter::where('status', true)->get();
         $umkms = UMKM::with('shelter')->where('status', true)->get();
 
         return view('backend.pages.produk.index', compact(
             'produks',
-            'wilayahs',
             'shelters',
             'umkms',
         ));
     }
 
-    public function create() {}
+    public function create() {
+        $shelters = Shelter::where('status', true)->get();
+        $umkms = UMKM::with('shelter')->where('status', true)->get();
+
+        return view('backend.pages.produk.create', compact(
+            'shelters',
+            'umkms',
+        ));
+    }
 
     public function store(Request $request) {
         try {
             $request->validate([
                 'umkm_id' => 'required',
                 'nama_produk' => 'required',
-                'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg|max:5120',
+                'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg|max:150',
                 'deskripsi_produk' => 'required',
+            ], [
+                'umkm_id.required' => 'ID UMKM wajib diisi.',
+                'nama_produk.required' => 'Nama produk wajib diisi.',
+                'foto_produk.required' => 'Foto produk wajib diunggah.',
+                'foto_produk.file' => 'Yang diunggah harus berupa file.',
+                'foto_produk.mimes' => 'Foto produk hanya boleh berformat PNG, JPG, atau JPEG.',
+                'foto_produk.image' => 'Foto produk harus berupa gambar.',
+                'foto_produk.max' => 'Foto produk maksimal 150KB.',
+                'deskripsi_produk.required' => 'Deskripsi produk wajib diisi.',
             ]);
     
             $array = [
@@ -83,15 +98,25 @@ class ProdukController extends Controller
 
             Produk::create($array);
     
-            return back()->with('success', 'Success');
-        } catch (\Throwable $th) {
-            return back()->with('error', $th->getMessage());
+            return redirect()->route('admin.produk.index')->with('success', 'Data berhasil ditambahkan');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
     }
 
     public function show($id) {}
 
-    public function edit($id) {}
+    public function edit($id) {
+        $produk = Produk::find($id);
+        $shelters = Shelter::where('status', true)->get();
+        $umkms = UMKM::with('shelter')->where('status', true)->get();
+
+        return view('backend.pages.produk.edit', compact(
+            'produk',
+            'shelters',
+            'umkms',
+        ));
+    }
 
     public function update(Request $request, $id) {
         try {
@@ -99,15 +124,20 @@ class ProdukController extends Controller
     
             $request->validate([
                 'umkm_id' => 'required',
-                'kategori_id' => 'required',
                 'nama_produk' => 'required',
-                'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg|max:5120',
+                'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg|max:150',
                 'deskripsi_produk' => 'required',
+            ], [
+                'umkm_id.required' => 'ID UMKM wajib diisi.',
+                'nama_produk.required' => 'Nama produk wajib diisi.',
+                'foto_produk.file' => 'Foto produk harus berupa file.',
+                'foto_produk.mimes' => 'Foto produk harus berformat PNG, JPG, atau JPEG.',
+                'foto_produk.max' => 'Ukuran foto produk maksimal 150KB.',
+                'deskripsi_produk.required' => 'Deskripsi produk wajib diisi.',
             ]);
     
             $array = [
                 'umkm_id' => $request['umkm_id'],
-                'kategori_id' => $request['kategori_id'],
                 'nama_produk' => $request['nama_produk'],
                 'deskripsi_produk' => $request['deskripsi_produk'],
             ];
@@ -118,9 +148,9 @@ class ProdukController extends Controller
     
             $produk->update($array);
     
-            return back()->with('success', 'Success');
-        } catch (\Throwable $th) {
-            return back()->with('error', $th->getMessage());
+            return back()->with('success', 'Data berhasil diupdate');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
     }
 
@@ -132,9 +162,9 @@ class ProdukController extends Controller
                 'status' => false,
             ]);
 
-            return back()->with('success', 'Success');
-        } catch (\Throwable $th) {
-            return back()->with('error', $th->getMessage());
+            return back()->with('success', 'Data berhasil dihapus');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
     }
 

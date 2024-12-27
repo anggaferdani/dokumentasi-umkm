@@ -10,7 +10,7 @@
     </div>
     <div class="col-auto ms-auto d-print-none">
       <div class="btn-list">
-        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
+        <a href="{{ route('admin.shelter.create') }}" class="btn btn-primary">Create</a>
         <a href="{{ route('admin.shelter.index', array_merge(request()->query(), ['export' => 'excel'])) }}" class="btn btn-success">Excel</a>
         <a href="{{ route('admin.shelter.index', array_merge(request()->query(), ['export' => 'pdf'])) }}" class="btn btn-danger">PDF</a>
       </div>
@@ -27,9 +27,18 @@
           {{ Session::get('success') }}
         </div>
       @endif
-      @if(Session::get('error'))
+      @if(Session::get('errror'))
         <div class="alert alert-important alert-danger" role="alert">
-          {{ Session::get('error') }}
+          {{ Session::get('errror') }}
+        </div>
+      @endif
+      @if($errors->any())
+        <div class="alert alert-danger alert-important">
+          <ul>
+            @foreach($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
         </div>
       @endif
       <div class="card">
@@ -62,41 +71,69 @@
                 <th>Alamat</th>
                 <th>Ditempati</th>
                 <th>Kosong</th>
-                <th>Total</th>
                 <th>Ber SIP</th>
                 <th>Selisih</th>
+                <th>Total</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               @foreach ($shelters as $shelter)
                 @php
-                  $ditempati = $shelter->umkms->reduce(function ($carry, $umkm) {
-                    if ($umkm->shift == 'pagi malam') {
-                      return $carry + 2;
-                    } elseif ($umkm->shift == 'pagi' || $umkm->shift == 'malam') {
-                      return $carry + 1;
-                    } 
-                    return $carry;
-                  }, 0);
-                  $kosong = $shelter->kapasitas - $ditempati;
-                  $berSIP = $shelter->umkms->filter(function ($umkm) {
-                    return $umkm->surat_ijin_penempatan === "ada";
-                  })->count();
+                  $ditempatiPagi = 0;
+                  $ditempatiMalam = 0;
+                  $kosongPagi = $shelter->kapasitas;
+                  $kosongMalam = $shelter->kapasitas;
+                  $berSIPPagi = 0;
+                  $berSIPMalam = 0;
+          
+                  foreach ($shelter->umkms as $umkm) {
+                    if ($umkm->shift == 'pagi') {
+                      $ditempatiPagi += 1;
+                      $berSIPPagi += ($umkm->surat_ijin_penempatan === "ada") ? 1 : 0;
+                      $kosongPagi -= 1;
+                    } elseif ($umkm->shift == 'malam') {
+                      $ditempatiMalam += 1;
+                      $berSIPMalam += ($umkm->surat_ijin_penempatan === "ada") ? 1 : 0;
+                      $kosongMalam -= 1;
+                    } elseif ($umkm->shift == 'pagi malam') {
+                      $ditempatiPagi += 1;
+                      $ditempatiMalam += 1;
+                      $berSIPPagi += ($umkm->surat_ijin_penempatan === "ada") ? 1 : 0;
+                      $berSIPMalam += ($umkm->surat_ijin_penempatan === "ada") ? 1 : 0;
+                      $kosongPagi -= 1;
+                      $kosongMalam -= 1;
+                    }
+                  }
+          
+                  $selisihPagi = $ditempatiPagi - $berSIPPagi;
+                  $selisihMalam = $ditempatiMalam - $berSIPMalam;
                 @endphp
                 <tr>
                   <td>{{ ($shelters->currentPage() - 1) * $shelters->perPage() + $loop->iteration }}</td>
                   <td>{{ $shelter->nama }}</td>
-                  <td>{{ $shelter->alamat ?? '-' }}, {{ $shelter->subdistrict->district->dis_name ?? '-' }}, {{ $shelter->subdistrict->subdis_name }}</td>
-                  <td>{{ $ditempati }}</td>
-                  <td>{{ $kosong }}</td>
+                  <td>{{ $shelter->alamat ?? '-' }}, {{ $shelter->subdistrict->district->name ?? '-' }}, {{ $shelter->subdistrict->name }}</td>
+                  <td style="white-space: nowrap;">
+                    <div>Pagi: {{ $ditempatiPagi }}</div>
+                    <div>Malam: {{ $ditempatiMalam }}</div>
+                  </td>
+                  <td style="white-space: nowrap;">
+                    <div>Pagi: {{ $kosongPagi }}</div>
+                    <div>Malam: {{ $kosongMalam }}</div>
+                  </td>
+                  <td style="white-space: nowrap;">
+                    <div>Pagi: {{ $berSIPPagi }}</div>
+                    <div>Malam: {{ $berSIPMalam }}</div>
+                  </td>
+                  <td style="white-space: nowrap;">
+                    <div>Pagi: {{ $selisihPagi }}</div>
+                    <div>Malam: {{ $selisihMalam }}</div>
+                  </td>
                   <td>{{ $shelter->kapasitas }}</td>
-                  <td>{{ $berSIP }}</td>
-                  <td>{{ $ditempati - $berSIP }}</td>
                   <td>
                     <div class="d-flex gap-1">
                       <a href="{{ route('admin.shelter.booth.index', ['shelterId' => $shelter->id]) }}" class="btn btn-primary">Booth</a>
-                      <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $shelter->id }}"><i class="fa-solid fa-pen"></i></button>
+                      <a href="{{ route('admin.shelter.edit', $shelter->id) }}" class="btn btn-icon btn-primary"><i class="fa-solid fa-pen"></i></a>
                       <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $shelter->id }}"><i class="fa-solid fa-trash"></i></button>
                     </div>
                   </td>
@@ -119,131 +156,8 @@
   </div>
 </div>
 
-<div class="modal modal-blur fade" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <form action="{{ route('admin.shelter.store') }}" method="POST" class="">
-        @csrf
-        <div class="modal-header">
-          <h5 class="modal-title">Create</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label required">Nama Shelter</label>
-            <input type="text" class="form-control" name="nama" placeholder="Nama Shelter">
-            @error('nama')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Kapasitas</label>
-            <input type="number" class="form-control" name="kapasitas" placeholder="Kapasitas">
-            @error('kapasitas')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Alamat</label>
-            <textarea class="form-control" name="alamat" rows="3" placeholder="Masukan nama desa dan jalan"></textarea>
-            @error('alamat')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="row">
-            <div class="col-6">
-              <label class="form-label required">Kecamatan</label>
-              <select class="form-select" name="kecamatan_id" id="district">
-                <option disabled selected value="">Pilih</option>
-                @foreach($districts as $district)
-                    <option value="{{ $district->dis_id }}">{{ $district->dis_name }}</option>
-                @endforeach
-              </select>
-              @error('kecamatan_id')<div class="text-danger">{{ $message }}</div>@enderror
-            </div>
-            <div class="col-6">
-              <label class="form-label required">Kelurahan</label>
-              <select class="form-select" name="kelurahan_id" id="subdistrict">
-                <option disabled selected value="">Pilih</option>
-              </select>
-              @error('kelurahan_id')<div class="text-danger">{{ $message }}</div>@enderror
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-            Cancel
-          </a>
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
 @foreach ($shelters as $shelter)
-@php
-  $kelurahan = App\Models\Subdistrict::where('subdis_id', $shelter->kelurahan_id)->first();
-@endphp
-<div class="modal modal-blur fade" id="edit{{ $shelter->id }}" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <form action="{{ route('admin.shelter.update', $shelter->id) }}" method="POST" class="">
-        @csrf
-        @method('PUT')
-        <div class="modal-header">
-          <h5 class="modal-title">Edit</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label required">Nama Shelter</label>
-            <input type="text" class="form-control" name="nama" placeholder="Nama Shelter" value="{{ $shelter->nama }}">
-            @error('nama')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Kapasitas</label>
-            <input type="number" class="form-control" name="kapasitas" placeholder="Kapasitas" value="{{ $shelter->kapasitas }}">
-            @error('kapasitas')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Alamat</label>
-            <textarea class="form-control" name="alamat" rows="3" placeholder="Masukan nama desa dan jalan">{{ $shelter->alamat }}</textarea>
-            @error('alamat')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="row">
-            <div class="col-6">
-              <label class="form-label required">Kecamatan</label>
-              <select class="form-select districtEdit" name="kecamatan_id" id="district{{ $shelter->id }}">
-                <option disabled selected value="">Pilih</option>
-                @foreach($districts as $district)
-                    <option value="{{ $district->dis_id }}" {{ $district->dis_id == $kelurahan->dis_id ? 'selected' : '' }}>{{ $district->dis_name }}</option>
-                @endforeach
-              </select>
-              @error('kecamatan_id')<div class="text-danger">{{ $message }}</div>@enderror
-            </div>
-            <div class="col-6">
-              <label class="form-label required">Kelurahan</label>
-              <select class="form-select subdistrictEdit" name="kelurahan_id" id="subdistrict{{ $shelter->id }}">
-                <option disabled selected value="">Pilih</option>
-                @foreach($subdistricts as $subdistrict)
-                    <option value="{{ $subdistrict->subdis_id }}" {{ $subdistrict->subdis_id == $shelter->kelurahan_id ? 'selected' : '' }}>
-                        {{ $subdistrict->subdis_name }}
-                    </option>
-                @endforeach
-              </select>
-              @error('kelurahan_id')<div class="text-danger">{{ $message }}</div>@enderror
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-            Cancel
-          </a>
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-@endforeach
-
-@foreach ($shelters as $shelter)
-<div class="modal modal-blur fade" id="delete{{ $shelter->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="delete{{ $shelter->id }}" data-bs-backdrop="static" data-bs-backdrop="static" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -270,53 +184,3 @@
 </div>
 @endforeach
 @endsection
-@push('scripts')
-<script>
-  let districtName, subdistrictName;
-
-  $(document).ready(function () {
-    $('#district').on('change', function () {
-        var districtId = $(this).val();
-        districtName = $(this).children("option:selected").text();
-        console.log(districtName);
-        if (districtId) {
-            populateSubdistricts(districtId, '#subdistrict');
-        } else {
-            resetSubdistrict('#subdistrict');
-        }
-    });
-
-    $('.districtEdit').on('change', function () {
-        var districtId = $(this).val();
-        districtName = $(this).children("option:selected").text();
-        var subdistrictSelect = $(this).closest('.modal').find('.subdistrictEdit');
-
-        if (districtId) {
-            populateSubdistricts(districtId, subdistrictSelect);
-        } else {
-            resetSubdistrict(subdistrictSelect);
-        }
-    });
-  });
-
-  function populateSubdistricts(districtId, subdistrictSelect) {
-      $.ajax({
-          url: '/admin/get-subdistricts',
-          type: 'GET',
-          data: { district_id: districtId },
-          success: function (data) {
-              $(subdistrictSelect).empty();
-              $(subdistrictSelect).append('<option disabled selected value="">Pilih</option>');
-              $.each(data, function (key, value) {
-                  $(subdistrictSelect).append('<option value="' + value.subdis_id + '">' + value.subdis_name + '</option>');
-              });
-          }
-      });
-  }
-
-  function resetSubdistrict(subdistrictSelect) {
-      $(subdistrictSelect).empty();
-      $(subdistrictSelect).append('<option disabled selected value="">Pilih</option>');
-  }
-</script>
-@endpush

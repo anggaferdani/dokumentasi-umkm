@@ -24,12 +24,16 @@ class KategoriController extends Controller
         ));
     }
 
-    public function create() {}
+    public function create() {
+        return view('backend.pages.kategori.create');
+    }
 
     public function store(Request $request) {
         try {
             $request->validate([
                 'kategori' => 'required',
+            ], [
+                'kategori.required' => 'Kolom kategori wajib diisi.',
             ]);
     
             $array = [
@@ -38,15 +42,21 @@ class KategoriController extends Controller
 
             Kategori::create($array);
     
-            return redirect()->route('admin.kategori.index')->with('success', 'Success');
-        } catch (\Throwable $th) {
-            return back()->with('error', $th->getMessage());
+            return back()->with('success', 'Data berhasil ditambahkan');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
     }
 
     public function show($id) {}
 
-    public function edit($id) {}
+    public function edit($id) {
+        $kategori = Kategori::find($id);
+
+        return view('backend.pages.kategori.edit', compact(
+            'kategori',
+        ));
+    }
 
     public function update(Request $request, $id) {
         try {
@@ -54,6 +64,8 @@ class KategoriController extends Controller
     
             $request->validate([
                 'kategori' => 'required',
+            ], [
+                'kategori.required' => 'Kolom kategori wajib diisi.',
             ]);
     
             $array = [
@@ -62,9 +74,9 @@ class KategoriController extends Controller
     
             $kategori->update($array);
     
-            return redirect()->route('admin.kategori.index')->with('success', 'Success');
-        } catch (\Throwable $th) {
-            return back()->with('error', $th->getMessage());
+            return back()->with('success', 'Data berhasil diupdate');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
     }
 
@@ -76,9 +88,9 @@ class KategoriController extends Controller
                 'status' => false,
             ]);
 
-            return redirect()->route('admin.kategori.index')->with('success', 'Success');
-        } catch (\Throwable $th) {
-            return back()->with('error', $th->getMessage());
+            return back()->with('success', 'Data berhasil dihapus');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
     }
 }

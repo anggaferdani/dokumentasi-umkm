@@ -10,7 +10,7 @@ class Subdistrict extends Model
 {
     use HasFactory;
 
-    protected $table = 'subdistricts';
+    protected $table = 'reg_villages';
 
     protected $primaryKey = 'id';
 
@@ -18,11 +18,11 @@ class Subdistrict extends Model
 
     public function district()
     {
-        return $this->belongsTo(District::class, 'dis_id', 'dis_id');
+        return $this->belongsTo(District::class, 'district_id', 'id');
     }
 
     public function shelters()
     {
-        return $this->hasMany(Shelter::class, 'kelurahan_id', 'subdis_id');
+        return $this->hasMany(Shelter::class);
     }
 }

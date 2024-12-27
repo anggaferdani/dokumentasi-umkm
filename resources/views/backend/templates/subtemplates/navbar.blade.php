@@ -12,6 +12,7 @@
           </div>
         </a>
         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+          <a href="{{ route('admin.profile') }}" class="dropdown-item">Profile</a>
           <a href="{{ route('logout') }}" class="dropdown-item">Logout</a>
         </div>
       </div>

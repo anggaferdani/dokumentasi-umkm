@@ -6,7 +6,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use App\Models\Wilayah;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,23 +16,11 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Admin',
                 'email' => 'admin@umkm.com',
                 'password' => bcrypt('adminumkm123*'),
+                'password_last_changed' => now(),
                 'role' => 1,
             ],
         ];
 
         User::insert($users);
-
-        $wilayahs = [
-            [
-                'nama' => 'Solo',
-            ],
-        ];
-
-        Wilayah::insert($wilayahs);
-
-        $this->call(CitiesSeeder::class);
-        $this->call(DistrictsSeeder::class);
-        $this->call(ProvincesSeeder::class);
-        $this->call(SubdistrictsSeeder::class);
     }
 }

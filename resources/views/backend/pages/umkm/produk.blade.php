@@ -10,8 +10,8 @@
     </div>
     <div class="col-auto ms-auto d-print-none">
       <div class="btn-list">
-        <a href="{{ route('admin.umkm.index') }}" class="btn btn-primary">Back</a>
-        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
+        <a href="{{ route('admin.umkm.index') }}" class="btn btn-secondary">Back</a>
+        <a href="{{ route('admin.umkm.produk.create', ['id' => $umkm->id]) }}" class="btn btn-primary">Create</a>
         <a href="{{ route('admin.umkm.produk', array_merge(request()->query(), ['export' => 'excel', 'id' => $umkm->id])) }}" class="btn btn-success">Excel</a>
         <a href="{{ route('admin.umkm.produk', array_merge(request()->query(), ['export' => 'pdf', 'id' => $umkm->id])) }}" class="btn btn-danger">PDF</a>
       </div>
@@ -34,9 +34,18 @@
           {{ Session::get('success') }}
         </div>
       @endif
-      @if(Session::get('error'))
+      @if(Session::get('errror'))
         <div class="alert alert-important alert-danger" role="alert">
-          {{ Session::get('error') }}
+          {{ Session::get('errror') }}
+        </div>
+      @endif
+      @if($errors->any())
+        <div class="alert alert-danger alert-important">
+          <ul>
+            @foreach($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
         </div>
       @endif
       <div class="card">
@@ -83,7 +92,7 @@
                   <td>{{ $produk->deskripsi_produk }}</td>
                   <td>
                     <div class="d-flex gap-1">
-                      <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $produk->id }}"><i class="fa-solid fa-pen"></i></button>
+                      <a href="{{ route('admin.umkm.produk.edit', ['id' => $umkm->id, 'produk_id' => $produk->id]) }}" class="btn btn-icon btn-primary"><i class="fa-solid fa-pen"></i></a>
                       <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $produk->id }}"><i class="fa-solid fa-trash"></i></button>
                     </div>
                   </td>
@@ -106,115 +115,13 @@
   </div>
 </div>
 
-<div class="modal modal-blur fade" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <form action="{{ route('admin.produk.store') }}" method="POST" class="" enctype="multipart/form-data">
-        @csrf
-        <div class="modal-header">
-          <h5 class="modal-title">Create</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          {{-- <div class="mb-3">
-            <label class="form-label required">UMKM</label>
-            <select class="form-select" name="umkm_id">
-              <option disabled selected value="">Pilih</option>
-              @foreach($umkms as $umkm)
-                  <option value="{{ $umkm->id }}">{{ $umkm->nama }}</option>
-              @endforeach
-            </select>
-            @error('umkm_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div> --}}
-          <input type="hidden" class="" name="umkm_id" placeholder="" value="{{ $umkm->id }}">
-          <div class="mb-3">
-            <label class="form-label required">Nama Produk</label>
-            <input type="text" class="form-control" name="nama_produk" placeholder="Nama Produk">
-            @error('nama_produk')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Foto Produk</label>
-            <input type="file" class="form-control" name="foto_produk" placeholder="Foto Produk">
-            <div class="text-secondary small">Maksimal ukuran file adalah 5MB dan hanya boleh berupa file dengan format PNG, JPG, atau JPEG.</div>
-            @error('foto_produk')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Deskripsi Produk</label>
-            <textarea class="form-control" name="deskripsi_produk" rows="3" placeholder="Deskripsi Produk"></textarea>
-            @error('deskripsi_produk')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-            Cancel
-          </a>
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-@foreach ($produks as $produk)
-<div class="modal modal-blur fade" id="edit{{ $produk->id }}" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <form action="{{ route('admin.produk.update', $produk->id) }}" method="POST" class="" enctype="multipart/form-data">
-        @csrf
-        @method('PUT')
-        <div class="modal-header">
-          <h5 class="modal-title">Edit</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          {{-- <div class="mb-3">
-            <label class="form-label required">UMKM</label>
-            <select class="form-select" name="umkm_id">
-              <option disabled selected value="">Pilih</option>
-              @foreach($umkms as $umkm)
-                <option value="{{ $umkm->id }}" @if($produk->umkm_id == $umkm->id) @selected(true) @endif>{{ $umkm->nama }}</option>
-              @endforeach
-            </select>
-            @error('umkm_id')<div class="text-danger">{{ $message }}</div>@enderror
-          </div> --}}
-          <input type="hidden" class="" name="umkm_id" placeholder="" value="{{ $umkm->id }}">
-          <div class="mb-3">
-            <label class="form-label required">Nama Produk</label>
-            <input type="text" class="form-control" name="nama_produk" placeholder="Nama Produk" value="{{ $produk->nama_produk }}">
-            @error('nama_produk')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Foto Produk</label>
-            <input type="file" class="form-control" name="foto_produk" placeholder="Foto Produk" value="{{ $produk->foto_produk }}">
-            <div><a href="/images/produk/foto-produk/{{ $produk->foto_produk }}" target="_blank">{{ $produk->foto_produk }}</a></div>
-            <div class="text-secondary small">Maksimal ukuran file adalah 5MB dan hanya boleh berupa file dengan format PNG, JPG, atau JPEG.</div>
-            @error('foto_produk')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-          <div class="mb-3">
-            <label class="form-label required">Deskripsi Produk</label>
-            <textarea class="form-control" name="deskripsi_produk" rows="3" placeholder="Deskripsi Produk">{{ $produk->deskripsi_produk }}</textarea>
-            @error('deskripsi_produk')<div class="text-danger">{{ $message }}</div>@enderror
-          </div>
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-            Cancel
-          </a>
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-@endforeach
-
 @foreach ($produks as $produk)
 <div class="modal modal-blur fade" id="delete{{ $produk->id }}" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       <div class="modal-status bg-danger"></div>
-      <form action="{{ route('admin.produk.destroy', $produk->id) }}" method="POST">
+      <form action="{{ route('admin.umkm.produk.destroy', ['id' => $umkm->id, 'produk_id' => $produk->id]) }}" method="POST">
         @csrf
         @method('Delete')
         <div class="modal-body text-center py-4">

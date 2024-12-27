@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Produk;
 use App\Models\Shelter;
 use App\Models\UMKM;
 use Illuminate\Http\Request;
@@ -15,11 +16,12 @@ class DashboardController extends Controller
         $totalUMKMTidakAktif = UMKM::where('aktif', false)->where('status', true)->count();
         $totalUMKMBerSIP = UMKM::where('status', true)->where('surat_ijin_penempatan', 'ada')->count();
         $totalUMKMTidakBerSIP = UMKM::where('status', true)->where('surat_ijin_penempatan', 'tidak')->count();
-        $totalUMKMBerNote = UMKM::where('status', true)->whereNotNull('note')->count();
+        $totalProducts = Produk::where('status', true)->count();
         $totalUMKMBerRetribusiLancar = UMKM::where('status', true)->where('retribusi', 'lancar')->count();
         $totalUMKMBerRetribusiTidakLancar = UMKM::where('status', true)->where('retribusi', 'tidak lancar')->count();
-        $shelters = Shelter::with('district', 'subdistrict')->where('status', true)->latest()->paginate(3);
-        
+        $shelters = Shelter::withCount('umkms')->where('status', true)->get();
+        $shelterNames = $shelters->pluck('nama');
+        $umkmCounts = $shelters->pluck('umkms_count');
         return view('backend.pages.dashboard', compact(
             'totalShelter',
             'totalUMKM',
@@ -27,10 +29,15 @@ class DashboardController extends Controller
             'totalUMKMTidakAktif',
             'totalUMKMBerSIP',
             'totalUMKMTidakBerSIP',
-            'totalUMKMBerNote',
+            'totalProducts',
             'totalUMKMBerRetribusiLancar',
             'totalUMKMBerRetribusiTidakLancar',
             'shelters',
+            'shelterNames',
+            'umkmCounts',
+            'totalUMKM',
+            'totalUMKMAktif',
+            'totalUMKMTidakAktif'
         ));
     }
 }

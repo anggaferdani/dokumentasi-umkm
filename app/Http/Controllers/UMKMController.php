@@ -61,6 +61,122 @@ class UMKMController extends Controller
         ));
     }
 
+    public function produkCreate($id) {
+        $umkm = UMKM::find($id);
+        $shelters = Shelter::where('status', true)->get();
+        $umkms = UMKM::with('shelter')->where('status', true)->get();
+
+        return view('backend.pages.umkm.produk-create', compact(
+            'umkm',
+            'shelters',
+            'umkms',
+        ));
+    }
+
+    public function produkStore(Request $request, $id) {
+        try {
+            $umkm = UMKM::find($id);
+            
+            $request->validate([
+                'nama_produk' => 'required',
+                'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg|max:150',
+                'deskripsi_produk' => 'required',
+            ], [
+                'nama_produk.required' => 'Nama produk wajib diisi.',
+                'foto_produk.required' => 'Foto produk wajib diunggah.',
+                'foto_produk.file' => 'Yang diunggah harus berupa file.',
+                'foto_produk.mimes' => 'Foto produk hanya boleh berformat PNG, JPG, atau JPEG.',
+                'foto_produk.image' => 'Foto produk harus berupa gambar.',
+                'foto_produk.max' => 'Foto produk maksimal 150KB.',
+                'deskripsi_produk.required' => 'Deskripsi produk wajib diisi.',
+            ]);
+    
+            $array = [
+                'umkm_id' => $id,
+                'deskripsi_produk' => $request['deskripsi_produk'],
+                'nama_produk' => $request['nama_produk'],
+                'foto_produk' => $this->handleFileUpload($request->file('foto_produk'), 'images/produk/foto-produk/'),
+            ];
+
+            Produk::create($array);
+    
+            return redirect()->route('admin.umkm.produk', $umkm->id)->with('success', 'Data berhasil ditambahkan');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        }
+    }
+
+    public function produkEdit($id, $produk_id) {
+        $umkm = UMKM::find($id);
+        $produk = Produk::find($produk_id);
+        $shelters = Shelter::where('status', true)->get();
+        $umkms = UMKM::with('shelter')->where('status', true)->get();
+
+        return view('backend.pages.umkm.produk-edit', compact(
+            'umkm',
+            'produk',
+            'shelters',
+            'umkms',
+        ));
+    }
+
+    public function produkUpdate(Request $request, $id, $produk_id) {
+        try {
+            $produk = Produk::find($produk_id);
+    
+            $request->validate([
+                'nama_produk' => 'required',
+                'foto_produk' => 'nullable|file|mimes:png,jpg,jpeg|max:150',
+                'deskripsi_produk' => 'required',
+            ], [
+                'nama_produk.required' => 'Nama produk wajib diisi.',
+                'foto_produk.file' => 'Foto produk harus berupa file.',
+                'foto_produk.mimes' => 'Foto produk harus berformat PNG, JPG, atau JPEG.',
+                'foto_produk.max' => 'Ukuran foto produk maksimal 150KB.',
+                'deskripsi_produk.required' => 'Deskripsi produk wajib diisi.',
+            ]);
+    
+            $array = [
+                'nama_produk' => $request['nama_produk'],
+                'deskripsi_produk' => $request['deskripsi_produk'],
+            ];
+
+            if ($request->hasFile('foto_produk')) {
+                $array['foto_produk'] = $this->handleFileUpload($request->file('foto_produk'), 'images/produk/foto-produk/');
+            }
+    
+            $produk->update($array);
+    
+            return back()->with('success', 'Data berhasil diupdate');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        }
+    }
+
+    public function produkDestroy($id, $produk_id) {
+        try {
+            $produk = Produk::find($produk_id);
+
+            $produk->update([
+                'status' => false,
+            ]);
+
+            return back()->with('success', 'Data berhasil dihapus');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        }
+    }
+
+    private function handleFileUpload($file, $path)
+    {
+        if ($file) {
+            $fileName = date('YmdHis') . rand(999, 9999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path($path), $fileName);
+            return $fileName;
+        }
+        return null;
+    }
+
     public function index(Request $request) {
         $query = UMKM::with('kategori')->where('status', true);
 
@@ -94,38 +210,111 @@ class UMKMController extends Controller
 
         $umkms = $query->latest()->paginate(10);
 
-        $wilayahs = Wilayah::where('status', true)->get();
-        $kategoris = Kategori::where('status', true)->get();
         $shelters = Shelter::where('status', true)
             ->with(['umkms'])
             ->latest()
             ->get()
             ->map(function ($shelter) {
-                $shelter->current_count = $shelter->umkms->reduce(function ($carry, $umkm) {
-                    if ($umkm->shift == 'pagi malam') {
-                        return $carry + 2;
-                    } elseif ($umkm->shift == 'pagi' || $umkm->shift == 'malam') {
-                        return $carry + 1;
-                    }
-                    return $carry;
-                }, 0);
+                // Hitung jumlah UMKM per shift
+                $countPagi = $shelter->umkms->filter(function ($umkm) {
+                    return $umkm->shift === 'pagi' || $umkm->shift === 'pagi malam';
+                })->count();
 
-                $shelter->is_full = $shelter->current_count >= $shelter->kapasitas;
+                $countMalam = $shelter->umkms->filter(function ($umkm) {
+                    return $umkm->shift === 'malam' || $umkm->shift === 'pagi malam';
+                })->count();
 
+                // Tentukan apakah kapasitas penuh
+                $shelter->is_full_pagi = $countPagi >= $shelter->kapasitas;
+                $shelter->is_full_malam = $countMalam >= $shelter->kapasitas;
+
+                // Tentukan apakah masih ada kapasitas yang tersisa untuk "pagi malam"
+                $shelter->can_select_pagi_malam = ($countPagi < $shelter->kapasitas) && ($countMalam < $shelter->kapasitas);
+
+                // Simpan data tambahan
+                $shelter->count_pagi = $countPagi;
+                $shelter->count_malam = $countMalam;
                 $shelter->total_capacity = $shelter->kapasitas;
+
+                // Hitung status penggunaan booth
+                $boothStatus = [];
+                foreach ($shelter->umkms as $umkm) {
+                    $booth = $umkm->nomor_booth;
+                    if (!isset($boothStatus[$booth])) {
+                        $boothStatus[$booth] = ['pagi' => false, 'malam' => false];
+                    }
+
+                    if ($umkm->shift === 'pagi' || $umkm->shift === 'pagi malam') {
+                        $boothStatus[$booth]['pagi'] = true;
+                    }
+                    if ($umkm->shift === 'malam' || $umkm->shift === 'pagi malam') {
+                        $boothStatus[$booth]['malam'] = true;
+                    }
+                }
+                $shelter->booth_status = $boothStatus;
 
                 return $shelter;
             });
 
         return view('backend.pages.umkm.index', compact(
             'umkms',
-            'wilayahs',
-            'kategoris',
             'shelters',
         ));
     }
 
-    public function create() {}
+    public function create() {
+        $kategoris = Kategori::where('status', true)->get();
+        $shelters = Shelter::where('status', true)
+            ->with(['umkms'])
+            ->latest()
+            ->get()
+            ->map(function ($shelter) {
+                // Hitung jumlah UMKM per shift
+                $countPagi = $shelter->umkms->filter(function ($umkm) {
+                    return $umkm->shift === 'pagi' || $umkm->shift === 'pagi malam';
+                })->count();
+
+                $countMalam = $shelter->umkms->filter(function ($umkm) {
+                    return $umkm->shift === 'malam' || $umkm->shift === 'pagi malam';
+                })->count();
+
+                // Tentukan apakah kapasitas penuh
+                $shelter->is_full_pagi = $countPagi >= $shelter->kapasitas;
+                $shelter->is_full_malam = $countMalam >= $shelter->kapasitas;
+
+                // Tentukan apakah masih ada kapasitas yang tersisa untuk "pagi malam"
+                $shelter->can_select_pagi_malam = ($countPagi < $shelter->kapasitas) && ($countMalam < $shelter->kapasitas);
+
+                // Simpan data tambahan
+                $shelter->count_pagi = $countPagi;
+                $shelter->count_malam = $countMalam;
+                $shelter->total_capacity = $shelter->kapasitas;
+
+                // Hitung status penggunaan booth
+                $boothStatus = [];
+                foreach ($shelter->umkms as $umkm) {
+                    $booth = $umkm->nomor_booth;
+                    if (!isset($boothStatus[$booth])) {
+                        $boothStatus[$booth] = ['pagi' => false, 'malam' => false];
+                    }
+
+                    if ($umkm->shift === 'pagi' || $umkm->shift === 'pagi malam') {
+                        $boothStatus[$booth]['pagi'] = true;
+                    }
+                    if ($umkm->shift === 'malam' || $umkm->shift === 'pagi malam') {
+                        $boothStatus[$booth]['malam'] = true;
+                    }
+                }
+                $shelter->booth_status = $boothStatus;
+
+                return $shelter;
+            });
+
+        return view('backend.pages.umkm.create', compact(
+            'kategoris',
+            'shelters',
+        ));
+    }
 
     public function store(Request $request) {
         try {
@@ -184,15 +373,69 @@ class UMKMController extends Controller
 
             UMKM::create($array);
     
-            return redirect()->route('admin.umkm.index')->with('success', 'Success');
-        } catch (\Throwable $th) {
-            return back()->with('error', $th->getMessage());
+            return redirect()->route('admin.umkm.index')->with('success', 'Data berhasil ditambahkan');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
     }
 
     public function show($id) {}
 
-    public function edit($id) {}
+    public function edit($id) {
+        $umkm = UMKM::find($id);
+        $kategoris = Kategori::where('status', true)->get();
+        $shelters = Shelter::where('status', true)
+            ->with(['umkms'])
+            ->latest()
+            ->get()
+            ->map(function ($shelter) {
+                // Hitung jumlah UMKM per shift
+                $countPagi = $shelter->umkms->filter(function ($umkm) {
+                    return $umkm->shift === 'pagi' || $umkm->shift === 'pagi malam';
+                })->count();
+
+                $countMalam = $shelter->umkms->filter(function ($umkm) {
+                    return $umkm->shift === 'malam' || $umkm->shift === 'pagi malam';
+                })->count();
+
+                // Tentukan apakah kapasitas penuh
+                $shelter->is_full_pagi = $countPagi >= $shelter->kapasitas;
+                $shelter->is_full_malam = $countMalam >= $shelter->kapasitas;
+
+                // Tentukan apakah masih ada kapasitas yang tersisa untuk "pagi malam"
+                $shelter->can_select_pagi_malam = ($countPagi < $shelter->kapasitas) && ($countMalam < $shelter->kapasitas);
+
+                // Simpan data tambahan
+                $shelter->count_pagi = $countPagi;
+                $shelter->count_malam = $countMalam;
+                $shelter->total_capacity = $shelter->kapasitas;
+
+                // Hitung status penggunaan booth
+                $boothStatus = [];
+                foreach ($shelter->umkms as $umkm) {
+                    $booth = $umkm->nomor_booth;
+                    if (!isset($boothStatus[$booth])) {
+                        $boothStatus[$booth] = ['pagi' => false, 'malam' => false];
+                    }
+
+                    if ($umkm->shift === 'pagi' || $umkm->shift === 'pagi malam') {
+                        $boothStatus[$booth]['pagi'] = true;
+                    }
+                    if ($umkm->shift === 'malam' || $umkm->shift === 'pagi malam') {
+                        $boothStatus[$booth]['malam'] = true;
+                    }
+                }
+                $shelter->booth_status = $boothStatus;
+
+                return $shelter;
+            });
+
+        return view('backend.pages.umkm.edit', compact(
+            'umkm',
+            'kategoris',
+            'shelters',
+        ));
+    }
 
     public function update(Request $request, $id) {
         try {
@@ -253,9 +496,9 @@ class UMKMController extends Controller
     
             $umkm->update($array);
     
-            return redirect()->route('admin.umkm.index')->with('success', 'Success');
-        } catch (\Throwable $th) {
-            return back()->with('error', $th->getMessage());
+            return redirect()->route('admin.umkm.index')->with('success', 'Data berhasil diupdate');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
     }
 
@@ -267,9 +510,9 @@ class UMKMController extends Controller
                 'status' => false,
             ]);
 
-            return redirect()->route('admin.umkm.index')->with('success', 'Success');
-        } catch (\Throwable $th) {
-            return back()->with('error', $th->getMessage());
+            return redirect()->route('admin.umkm.index')->with('success', 'Data berhasil dihapus');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
     }
 }

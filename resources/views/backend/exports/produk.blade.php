@@ -24,7 +24,13 @@
           <td style="border: 1px black solid;">{{ $produk->umkm->shelter->nama }}</td>
           <td style="border: 1px black solid;">{{ $produk->umkm->nomor_booth }}</td>
           <td style="border: 1px black solid;">{{ $produk->umkm->nama }}</td>
-          <td style="border: 1px black solid;">{{ $produk->foto_produk ?? '-' }}</td>
+          <td style="border: 1px black solid;">
+            @if ($produk->foto_produk)
+                <a href="{{ url('images/produk/foto-produk/' . $produk->foto_produk) }}" target="_blank">{{ url('images/produk/foto-produk/' . $produk->foto_produk) }}</a>
+            @else
+                -
+            @endif
+          </td>
           <td style="border: 1px black solid;">{{ $produk->nama_produk }}</td>
           <td style="border: 1px black solid;">{{ $produk->deskripsi_produk }}</td>
       </tr>

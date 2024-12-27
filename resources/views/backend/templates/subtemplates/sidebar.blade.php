@@ -17,6 +17,7 @@
           </div>
         </a>
         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+          <a href="{{ route('admin.profile') }}" class="dropdown-item">Profile</a>
           <a href="{{ route('logout') }}" class="dropdown-item">Logout</a>
         </div>
       </div>
@@ -25,6 +26,7 @@
       <ul class="navbar-nav pt-lg-3">
         <li class="nav-item {{ Route::is('admin.dashboard') ? 'active' : '' }}"><a class="nav-link {{ Route::is('admin.dashboard') ? 'fw-bold' : '' }}" href="{{ route('admin.dashboard') }}" ><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-house"></i></span><span class="nav-link-title">Dashboard</span></a></li>
         <li class="nav-item {{ Route::is('index') ? 'active' : '' }}"><a class="nav-link {{ Route::is('index') ? 'fw-bold' : '' }}" href="{{ route('index') }}" ><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-magnifying-glass"></i></span><span class="nav-link-title">Dokumentasi UMKM</span></a></li>
+        <li class="nav-item {{ Route::is('admin.admin.*') ? 'active' : '' }}"><a class="nav-link {{ Route::is('admin.admin.*') ? 'fw-bold' : '' }}" href="{{ route('admin.admin.index') }}" ><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-user"></i></span><span class="nav-link-title">Admin</span></a></li>
         <li class="nav-item {{ Route::is('admin.user.*') ? 'active' : '' }}"><a class="nav-link {{ Route::is('admin.user.*') ? 'fw-bold' : '' }}" href="{{ route('admin.user.index') }}" ><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-user"></i></span><span class="nav-link-title">User</span></a></li>
         <li class="nav-item {{ Route::is('admin.kategori.*') ? 'active' : '' }}"><a class="nav-link {{ Route::is('admin.kategori.*') ? 'fw-bold' : '' }}" href="{{ route('admin.kategori.index') }}" ><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-tag"></i></span><span class="nav-link-title">Kategori</span></a></li>
         {{-- <li class="nav-item {{ Route::is('admin.wilayah.*') ? 'active' : '' }}"><a class="nav-link {{ Route::is('admin.wilayah.*') ? 'fw-bold' : '' }}" href="{{ route('admin.wilayah.index') }}" ><span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-location-dot"></i></span><span class="nav-link-title">Wilayah</span></a></li> --}}

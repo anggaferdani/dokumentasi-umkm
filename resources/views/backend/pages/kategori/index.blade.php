@@ -10,7 +10,7 @@
     </div>
     <div class="col-auto ms-auto d-print-none">
       <div class="btn-list">
-        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
+        <a href="{{ route('admin.kategori.create') }}" class="btn btn-primary">Create</a>
       </div>
     </div>
   </div>
@@ -25,9 +25,18 @@
           {{ Session::get('success') }}
         </div>
       @endif
-      @if(Session::get('error'))
+      @if(Session::get('errror'))
         <div class="alert alert-important alert-danger" role="alert">
-          {{ Session::get('error') }}
+          {{ Session::get('errror') }}
+        </div>
+      @endif
+      @if($errors->any())
+        <div class="alert alert-danger alert-important">
+          <ul>
+            @foreach($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
         </div>
       @endif
       <div class="card">
@@ -57,7 +66,7 @@
                   <td>{{ ($kategoris->currentPage() - 1) * $kategoris->perPage() + $loop->iteration }}</td>
                   <td>{{ $kategori->kategori }}</td>
                   <td>
-                    <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $kategori->id }}"><i class="fa-solid fa-pen"></i></button>
+                    <a href="{{ route('admin.kategori.edit', $kategori->id) }}" class="btn btn-icon btn-primary"><i class="fa-solid fa-pen"></i></a>
                     <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $kategori->id }}"><i class="fa-solid fa-trash"></i></button>
                   </td>
                 </tr>
@@ -79,7 +88,7 @@
   </div>
 </div>
 
-<div class="modal modal-blur fade" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="create" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <form action="{{ route('admin.kategori.store') }}" method="POST" class="">
@@ -91,7 +100,7 @@
         <div class="modal-body">
           <div class="">
             <label class="form-label required">Kategori</label>
-            <input type="text" class="form-control" name="kategori" placeholder="kategori">
+            <input type="text" class="form-control" name="kategori" placeholder="kategori" value="{{ old('kategori') }}">
             @error('kategori')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
@@ -107,7 +116,7 @@
 </div>
 
 @foreach ($kategoris as $kategori)
-<div class="modal modal-blur fade" id="edit{{ $kategori->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="edit{{ $kategori->id }}" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <form action="{{ route('admin.kategori.update', $kategori->id) }}" method="POST" class="">
@@ -137,7 +146,7 @@
 @endforeach
 
 @foreach ($kategoris as $kategori)
-<div class="modal modal-blur fade" id="delete{{ $kategori->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="delete{{ $kategori->id }}" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -164,3 +173,20 @@
 </div>
 @endforeach
 @endsection
+@push('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    @if($errors->any() && !request()->routeIs('admin.kategori.update'))
+        var create = new bootstrap.Modal(document.getElementById('create'));
+        create.show();
+    @endif
+
+    @foreach ($kategoris as $kategoris)
+        @if($errors->any() && old('id') == $kategoris->id)
+            var editModal = new bootstrap.Modal(document.getElementById('edit{{ $kategoris->id }}'));
+            editModal.show();
+        @endif
+    @endforeach
+  });
+</script>
+@endpush

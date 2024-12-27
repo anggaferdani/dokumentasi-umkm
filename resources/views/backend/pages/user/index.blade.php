@@ -10,7 +10,7 @@
     </div>
     <div class="col-auto ms-auto d-print-none">
       <div class="btn-list">
-        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
+        <a href="{{ route('admin.user.create') }}" class="btn btn-primary">Create</a>
       </div>
     </div>
   </div>
@@ -25,9 +25,18 @@
           {{ Session::get('success') }}
         </div>
       @endif
-      @if(Session::get('error'))
+      @if(Session::get('errror'))
         <div class="alert alert-important alert-danger" role="alert">
-          {{ Session::get('error') }}
+          {{ Session::get('errror') }}
+        </div>
+      @endif
+      @if($errors->any())
+        <div class="alert alert-danger alert-important">
+          <ul>
+            @foreach($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
         </div>
       @endif
       <div class="card">
@@ -49,6 +58,7 @@
                 <th>No.</th>
                 <th>Nama</th>
                 <th>Email</th>
+                <th>Role</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -58,8 +68,9 @@
                   <td>{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
                   <td>{{ $user->name }}</td>
                   <td>{{ $user->email }}</td>
+                  <td><span class="badge bg-success text-white">User</span></td>
                   <td>
-                    <button type="button" class="btn btn-icon btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ $user->id }}"><i class="fa-solid fa-pen"></i></button>
+                    <a href="{{ route('admin.user.edit', $user->id) }}" class="btn btn-icon btn-primary"><i class="fa-solid fa-pen"></i></a>
                     <button type="button" class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $user->id }}"><i class="fa-solid fa-trash"></i></button>
                   </td>
                 </tr>
@@ -81,10 +92,10 @@
   </div>
 </div>
 
-<div class="modal modal-blur fade" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="create" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-      <form action="{{ route('admin.user.store') }}" method="POST" class="">
+      <form action="{{ route('admin.admin.store') }}" method="POST" class="">
         @csrf
         <div class="modal-header">
           <h5 class="modal-title">Create</h5>
@@ -93,23 +104,23 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label required">Nama</label>
-            <input type="text" class="form-control" name="name" placeholder="Nama">
+            <input type="text" class="form-control" name="name" placeholder="Nama" value="{{ old('name') }}">
             @error('name')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
             <label class="form-label required">Email</label>
-            <input type="email" class="form-control" name="email" placeholder="Email">
+            <input type="email" class="form-control email" name="email" placeholder="Email" value="{{ old('email') }}">
             @error('email')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
             <label class="form-label required">Password</label>
-            <input type="password" class="form-control" name="password" placeholder="Password">
+            <input type="password" class="form-control" name="password" placeholder="Password" value="{{ old('password') }}">
             <div class="text-secondary small">Password harus memiliki minimal 8 karakter, mencakup huruf, angka, dan simbol.</div>
             @error('password')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
             <label class="form-label">Confirm Password</label>
-            <input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password">
+            <input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password" value="{{ old('confirm_password') }}">
             @error('confirm_password')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
         </div>
@@ -125,10 +136,10 @@
 </div>
 
 @foreach ($users as $user)
-<div class="modal modal-blur fade" id="edit{{ $user->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="edit{{ $user->id }}" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-      <form action="{{ route('admin.user.update', $user->id) }}" method="POST" class="">
+      <form action="{{ route('admin.admin.update', $user->id) }}" method="POST" class="">
         @csrf
         @method('PUT')
         <div class="modal-header">
@@ -143,7 +154,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label required">Email</label>
-            <input type="email" class="form-control" name="email" placeholder="Email" value="{{ $user->email }}">
+            <input type="email" class="form-control email" name="email" placeholder="Email" value="{{ $user->email }}">
             @error('email')<div class="text-danger">{{ $message }}</div>@enderror
           </div>
           <div class="mb-3">
@@ -171,7 +182,7 @@
 @endforeach
 
 @foreach ($users as $user)
-<div class="modal modal-blur fade" id="delete{{ $user->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="delete{{ $user->id }}" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -198,3 +209,20 @@
 </div>
 @endforeach
 @endsection
+@push('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    @if($errors->any() && !request()->routeIs('admin.user.update'))
+        var create = new bootstrap.Modal(document.getElementById('create'));
+        create.show();
+    @endif
+
+    @foreach ($users as $user)
+        @if($errors->any() && old('id') == $user->id)
+            var editModal = new bootstrap.Modal(document.getElementById('edit{{ $user->id }}'));
+            editModal.show();
+        @endif
+    @endforeach
+  });
+</script>
+@endpush

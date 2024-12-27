@@ -37,21 +37,21 @@ class ShelterController extends Controller
 
         $shelters = $query->latest()->paginate(10);
 
-        $wilayahs = Wilayah::where('status', true)->get();
-
-        $districts = District::where('city_id', '3372')->get();
-        $districtIds = $districts->pluck('dis_id');
-        $subdistricts = Subdistrict::whereIn('dis_id', $districtIds)->get();
-
         return view('backend.pages.shelter.index', compact(
             'shelters',
-            'wilayahs',
+        ));
+    }
+
+    public function create() {
+        $districts = District::where('regency_id', '3372')->get();
+        $districtIds = $districts->pluck('id');
+        $subdistricts = Subdistrict::whereIn('district_id', $districtIds)->get();
+
+        return view('backend.pages.shelter.create', compact(
             'districts',
             'subdistricts',
         ));
     }
-
-    public function create() {}
 
     public function store(Request $request) {
         try {
@@ -59,29 +59,48 @@ class ShelterController extends Controller
                 'nama' => 'required',
                 'kapasitas' => 'required|integer',
                 'alamat' => 'required',
+                'kecamatan_id' => 'required',
                 'kelurahan_id' => 'required',
+            ], [
+                'nama.required' => 'Kolom nama wajib diisi.',
+                'kapasitas.required' => 'Kolom kapasitas wajib diisi.',
+                'kapasitas.integer' => 'Kapasitas harus berupa angka bulat.',
+                'alamat.required' => 'Kolom alamat wajib diisi.',
+                'kecamatan_id.required' => 'Kolom ID Kecamatan wajib diisi.',
+                'kelurahan_id.required' => 'Kolom ID Kelurahan wajib diisi.',
             ]);
     
             $array = [
-                'wilayah_id' => 1,
                 'nama' => $request['nama'],
                 'kapasitas' => $request['kapasitas'],
                 'alamat' => $request['alamat'],
-                'kelurahan' => $request['kelurahan'],
                 'kelurahan_id' => $request['kelurahan_id'],
             ];
 
             Shelter::create($array);
 
-            return redirect()->route('admin.shelter.index')->with('success', 'Success');
-        } catch (\Throwable $th) {
-            return back()->with('error', $th->getMessage());
+            return redirect()->route('admin.shelter.index')->with('success', 'Data berhasil ditambahkan');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
     }
 
     public function show($id) {}
 
-    public function edit($id) {}
+    public function edit($id) {
+        $shelter = Shelter::find($id);
+        $districts = District::where('regency_id', '3372')->get();
+        $districtIds = $districts->pluck('id');
+        $subdistricts = Subdistrict::whereIn('district_id', $districtIds)->get();
+        $kelurahan = Subdistrict::where('id', $shelter->kelurahan_id)->first();
+
+        return view('backend.pages.shelter.edit', compact(
+            'shelter',
+            'districts',
+            'subdistricts',
+            'kelurahan',
+        ));
+    }
 
     public function update(Request $request, $id) {
         try {
@@ -91,7 +110,15 @@ class ShelterController extends Controller
                 'nama' => 'required',
                 'kapasitas' => 'required|integer',
                 'alamat' => 'required',
+                'kecamatan_id' => 'required',
                 'kelurahan_id' => 'required',
+            ], [
+                'nama.required' => 'Kolom nama wajib diisi.',
+                'kapasitas.required' => 'Kolom kapasitas wajib diisi.',
+                'kapasitas.integer' => 'Kapasitas harus berupa angka bulat.',
+                'alamat.required' => 'Kolom alamat wajib diisi.',
+                'kecamatan_id.required' => 'Kolom ID Kecamatan wajib diisi.',
+                'kelurahan_id.required' => 'Kolom ID Kelurahan wajib diisi.',
             ]);
 
             $jumlahActiveUMKMs = $shelter->umkms()->where('status', true)->count();
@@ -109,15 +136,14 @@ class ShelterController extends Controller
                 'nama' => $request['nama'],
                 'kapasitas' => $request['kapasitas'],
                 'alamat' => $request['alamat'],
-                'kelurahan' => $request['kelurahan'],
                 'kelurahan_id' => $request['kelurahan_id'],
             ];
     
             $shelter->update($array);
     
-            return redirect()->route('admin.shelter.index')->with('success', 'Success');
-        } catch (\Throwable $th) {
-            return back()->with('error', $th->getMessage());
+            return back()->with('success', 'Data berhasil diupdate');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
     }
 
@@ -129,9 +155,9 @@ class ShelterController extends Controller
                 'status' => false,
             ]);
 
-            return redirect()->route('admin.shelter.index')->with('success', 'Success');
-        } catch (\Throwable $th) {
-            return back()->with('error', $th->getMessage());
+            return back()->with('success', 'Data berhasil dihapus');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
     }
 }
