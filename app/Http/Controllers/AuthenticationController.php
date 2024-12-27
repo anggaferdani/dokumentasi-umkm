@@ -152,7 +152,7 @@ class AuthenticationController extends Controller
 
     public function postLogin(Request $request) {
 
-        if (RateLimiter::tooManyAttempts($request->ip(), 3)) {
+        if (RateLimiter::tooManyAttempts($request->ip(), 1)) {
             $seconds = RateLimiter::availableIn($request->ip());
             return redirect()->route('login')->with('error', 'Terlalu banyak percobaan login. Silakan coba lagi dalam ' . $seconds . ' detik.');
         }
@@ -188,7 +188,7 @@ class AuthenticationController extends Controller
                 if ($passwordLastChanged < $threeMonthsAgo) {
                     $userId = $user->id;
                     Auth::guard('web')->logout();
-                    return redirect()->route('reset-password', ['id' => Crypt::encrypt($userId)])->with('error', 'Password Anda telah kedaluwarsa lebih dari 3 bulan. Silakan segera melakukan pembaruan password untuk menjaga keamanan akun Anda.');
+                    return redirect()->route('reset-password', ['id' => Crypt::encrypt($userId)])->with('error', 'Kata sandi Anda sudah lebih dari 3 bulan. Harap segera diperbarui demi keamanan akun Anda.');
                 }
 
                 if (auth()->user()->role == 1) {

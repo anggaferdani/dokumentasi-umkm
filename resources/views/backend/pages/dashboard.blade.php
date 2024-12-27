@@ -22,7 +22,7 @@
     $passwordLastChanged = auth()->user()->password_last_changed;
     $now = \Carbon\Carbon::now();
     $passwordAge = $now->diffInMonths($passwordLastChanged);
-    $isPasswordCloseToExpiration = ($passwordAge == 2 && $now->diffInDays($passwordLastChanged) >= 50);
+    $isPasswordCloseToExpiration = ($passwordAge == 2 && $now->diffInDays($passwordLastChanged) >= 60);
   @endphp
 
   @if ($isPasswordCloseToExpiration)
