@@ -27,7 +27,7 @@
           {{ Session::get('success') }}
         </div>
       @endif
-      @if(Session::get('errror'))
+      @if(Session::get('error'))
         <div class="alert alert-important alert-danger" role="alert">
           {{ Session::get('errror') }}
         </div>
