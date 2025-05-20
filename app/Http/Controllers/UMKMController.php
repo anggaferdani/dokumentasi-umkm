@@ -263,9 +263,11 @@ class UMKMController extends Controller
     }
 
     public function create() {
-        $kategoris = Kategori::where('status', true)->get();
-        $shelters = Shelter::where('status', true)
-            ->with(['umkms'])
+        $kategoris = Kategori::where('status', 1)->get();
+        $shelters = Shelter::where('status', 1)
+            ->with(['umkms' => function ($query) {
+                $query->where('status', 1);
+            }])
             ->latest()
             ->get()
             ->map(function ($shelter) {

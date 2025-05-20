@@ -72,7 +72,7 @@
                 <th>Ditempati</th>
                 <th>Kosong</th>
                 <th>Ber SIP</th>
-                <th>Selisih</th>
+                <th>Selisih (Ditempati - BerSIP)</th>
                 <th>Total</th>
                 <th>Action</th>
               </tr>
