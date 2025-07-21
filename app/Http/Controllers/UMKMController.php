@@ -323,7 +323,7 @@ class UMKMController extends Controller
             $request->validate([
                 'shelter_id' => 'required',
                 'nomor_booth' => [
-                'required',
+                'nullable',
                     Rule::unique('umkms')->where(function ($query) use ($request) {
                         return $query->where('shelter_id', $request->shelter_id)->where('shift', $request->shift);
                     })
@@ -332,7 +332,7 @@ class UMKMController extends Controller
                 'tempat_lahir' => 'required',
                 'tanggal_lahir' => 'required',
                 'alamat' => 'required',
-                'shift' => 'required',
+                'shift' => 'nullable',
                 'surat_ijin_penempatan' => 'required',
                 'retribusi' => 'required',
                 'kategori_id' => 'required',

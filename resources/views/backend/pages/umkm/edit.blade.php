@@ -69,7 +69,7 @@
             </div>
             <div class="row g-2 mb-3">
                 <div class="col-md-6">
-                    <label class="form-label required">Nomor Booth</label>
+                    <label class="form-label">Nomor Booth</label>
                     <input type="hidden" name="nomor_booth" value="{{ $umkm->nomor_booth }}">
                     <select class="form-select" name="nomor_booth" id="nomor-booth-select-edit{{ $umkm->id }}">
                         <option disabled selected value="">Pilih</option>
@@ -77,7 +77,7 @@
                     @error('nomor_booth')<div class="text-danger">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label required">Shift</label>
+                    <label class="form-label">Shift</label>
                     <input type="hidden" name="shift" value="{{ $umkm->shift }}">
                     <select class="form-select" name="shift" id="shift-select-edit{{ $umkm->id }}">
                         <option disabled selected value="">Pilih</option>

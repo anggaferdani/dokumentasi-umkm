@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('shift')->nullable();
             $table->string('surat_ijin_penempatan')->nullable();
             $table->string('retribusi')->nullable();
-            $table->string('nomor_booth');
+            $table->string('nomor_booth')->nullable();
             $table->unsignedBigInteger('kategori_id');
             $table->foreign('kategori_id')->references('id')->on('kategoris')->onDelete('cascade');
             $table->string('jenis_dagangan')->nullable();
