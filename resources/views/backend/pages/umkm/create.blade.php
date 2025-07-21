@@ -68,14 +68,14 @@
             </div>
             <div class="row g-2 mb-3">
               <div class="col-md-6">
-                <label class="form-label required">Nomor Booth</label>
+                <label class="form-label">Nomor Booth</label>
                 <select class="form-select" name="nomor_booth" id="nomor-booth-select" disabled>
                   <option disabled value="" {{ old('nomor_booth') === null ? 'selected' : '' }}>Pilih</option>
                 </select>
                 @error('nomor_booth')<div class="text-danger">{{ $message }}</div>@enderror
               </div>
               <div class="col-md-6">
-                <label class="form-label required">Shift</label>
+                <label class="form-label">Shift</label>
                 <select class="form-select" name="shift" id="shift-select" disabled>
                   <option disabled value="" {{ old('shift') === null ? 'selected' : '' }}>Pilih</option>
                   <option value="pagi" {{ old('shift') == 'pagi' ? 'selected' : '' }}>Pagi</option>
