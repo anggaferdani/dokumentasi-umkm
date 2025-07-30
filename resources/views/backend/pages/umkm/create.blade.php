@@ -68,21 +68,21 @@
             </div>
             <div class="row g-2 mb-3">
               <div class="col-md-6">
-                <label class="form-label">Nomor Booth</label>
-                <select class="form-select" name="nomor_booth" id="nomor-booth-select" disabled>
-                  <option disabled value="" {{ old('nomor_booth') === null ? 'selected' : '' }}>Pilih</option>
-                </select>
+                <label class="form-label required">Nomor Booth</label>
+                <input type="text" class="form-control" name="nomor_booth" id="nomor-booth-input"
+                      placeholder="Masukkan nomor booth"
+                      value="{{ old('nomor_booth') }}">
                 @error('nomor_booth')<div class="text-danger">{{ $message }}</div>@enderror
               </div>
               <div class="col-md-6">
-                <label class="form-label">Shift</label>
-                <select class="form-select" name="shift" id="shift-select" disabled>
-                  <option disabled value="" {{ old('shift') === null ? 'selected' : '' }}>Pilih</option>
-                  <option value="pagi" {{ old('shift') == 'pagi' ? 'selected' : '' }}>Pagi</option>
-                  <option value="malam" {{ old('shift') == 'malam' ? 'selected' : '' }}>Malam</option>
-                  <option value="pagi malam" {{ old('shift') == 'pagi malam' ? 'selected' : '' }}>Pagi Malam</option>
-                </select>
-                @error('shift')<div class="text-danger">{{ $message }}</div>@enderror
+                  <label class="form-label required">Shift</label>
+                  <select class="form-select" name="shift" id="shift-select">
+                      <option disabled value="" {{ old('shift') === null ? 'selected' : '' }}>Pilih</option>
+                      <option value="pagi" {{ old('shift') == 'pagi' ? 'selected' : '' }}>Pagi</option>
+                      <option value="malam" {{ old('shift') == 'malam' ? 'selected' : '' }}>Malam</option>
+                      <option value="pagi malam" {{ old('shift') == 'pagi malam' ? 'selected' : '' }}>Pagi Malam</option>
+                  </select>
+                  @error('shift')<div class="text-danger">{{ $message }}</div>@enderror
               </div>
             </div>
             <div class="mb-3">

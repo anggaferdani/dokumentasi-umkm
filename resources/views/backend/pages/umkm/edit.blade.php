@@ -1,5 +1,6 @@
 @extends('backend.templates.pages')
 @section('title', "Edit UMKM ID $umkm->id")
+
 @section('header')
 <div class="container-xl">
   <div class="row g-2 align-items-center">
@@ -16,6 +17,7 @@
   </div>
 </div>
 @endsection
+
 @section('content')
 <div class="container-xl">
   <div class="row">
@@ -39,25 +41,24 @@
           </ul>
         </div>
       @endif
+
       <div class="card">
         <div class="card-header">
           <h4 class="card-title">Edit</h4>
         </div>
-        <form action="{{ route('admin.umkm.update', $umkm->id) }}" method="POST" class="">
+
+        <form action="{{ route('admin.umkm.update', $umkm->id) }}" method="POST">
           @csrf
           @method('PUT')
           <div class="card-body">
+
+            {{-- Shelter --}}
             <div class="mb-3">
               <label class="form-label required">Shelter</label>
-              <select class="form-select" name="shelter_id" id="shelter-select-edit{{ $umkm->id }}">
+              <select class="form-select" name="shelter_id">
                   <option disabled selected value="">Pilih</option>
                   @foreach($shelters as $shelter)
                       <option value="{{ $shelter->id }}"
-                          data-is-full-pagi="{{ $shelter->is_full_pagi ? 'true' : 'false' }}"
-                          data-is-full-malam="{{ $shelter->is_full_malam ? 'true' : 'false' }}"
-                          data-can-select-pagi-malam="{{ $shelter->can_select_pagi_malam ? 'true' : 'false' }}"
-                          data-total-capacity="{{ $shelter->total_capacity }}"
-                          data-booth-status="{{ json_encode($shelter->booth_status) }}"
                           @if($umkm->shelter_id == $shelter->id) selected @endif>
                           {{ $shelter->nama }} 
                           (Pagi: {{ $shelter->count_pagi }}/{{ $shelter->total_capacity }},
@@ -67,112 +68,149 @@
               </select>
               @error('shelter_id')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
+
+            {{-- ✅ Nomor Booth jadi input number --}}
+            {{-- ✅ Shift tetap pakai select --}}
             <div class="row g-2 mb-3">
                 <div class="col-md-6">
-                    <label class="form-label">Nomor Booth</label>
-                    <input type="hidden" name="nomor_booth" value="{{ $umkm->nomor_booth }}">
-                    <select class="form-select" name="nomor_booth" id="nomor-booth-select-edit{{ $umkm->id }}">
-                        <option disabled selected value="">Pilih</option>
-                    </select>
+                    <label class="form-label required">Nomor Booth</label>
+                    <input type="number" class="form-control" name="nomor_booth"
+                           value="{{ old('nomor_booth', $umkm->nomor_booth) }}"
+                           placeholder="Masukkan Nomor Booth">
                     @error('nomor_booth')<div class="text-danger">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Shift</label>
-                    <input type="hidden" name="shift" value="{{ $umkm->shift }}">
-                    <select class="form-select" name="shift" id="shift-select-edit{{ $umkm->id }}">
+                    <label class="form-label required">Shift</label>
+                    <select class="form-select" name="shift">
                         <option disabled selected value="">Pilih</option>
+                        <option value="pagi" {{ old('shift', $umkm->shift) == 'pagi' ? 'selected' : '' }}>Pagi</option>
+                        <option value="malam" {{ old('shift', $umkm->shift) == 'malam' ? 'selected' : '' }}>Malam</option>
+                        <option value="pagi malam" {{ old('shift', $umkm->shift) == 'pagi malam' ? 'selected' : '' }}>Pagi Malam</option>
                     </select>
                     @error('shift')<div class="text-danger">{{ $message }}</div>@enderror
                 </div>
             </div>
+
+            {{-- Nama --}}
             <div class="mb-3">
               <label class="form-label required">Nama</label>
-              <input type="text" class="form-control" name="nama" placeholder="Nama" value="{{ $umkm->nama }}">
+              <input type="text" class="form-control" name="nama" placeholder="Nama"
+                     value="{{ old('nama', $umkm->nama) }}">
               @error('nama')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
+
+            {{-- Tempat & Tanggal Lahir --}}
             <div class="mb-3">
               <div class="row">
                 <div class="col-6">
                   <label class="form-label required">Tempat Lahir</label>
-                  <input type="text" class="form-control" name="tempat_lahir" placeholder="Tempat Lahir" value="{{ $umkm->tempat_lahir }}">
+                  <input type="text" class="form-control" name="tempat_lahir" placeholder="Tempat Lahir"
+                         value="{{ old('tempat_lahir', $umkm->tempat_lahir) }}">
                   @error('tempat_lahir')<div class="text-danger">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-6">
                   <label class="form-label required">Tanggal Lahir</label>
-                  <input type="date" class="form-control" name="tanggal_lahir" placeholder="Tanggal Lahir" value="{{ $umkm->tanggal_lahir }}">
+                  <input type="date" class="form-control" name="tanggal_lahir" placeholder="Tanggal Lahir"
+                         value="{{ old('tanggal_lahir', $umkm->tanggal_lahir) }}">
                   @error('tanggal_lahir')<div class="text-danger">{{ $message }}</div>@enderror
                 </div>
               </div>
             </div>
+
+            {{-- Alamat --}}
             <div class="mb-3">
               <label class="form-label required">Alamat</label>
-              <textarea class="form-control" name="alamat" rows="3" placeholder="Alamat">{{ $umkm->alamat }}</textarea>
+              <textarea class="form-control" name="alamat" rows="3" placeholder="Alamat">{{ old('alamat', $umkm->alamat) }}</textarea>
               @error('alamat')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
+
+            {{-- Surat Ijin Penempatan --}}
             <div class="mb-3">
               <label class="form-label required">Surat Ijin Penempatan</label>
               <select class="form-select" name="surat_ijin_penempatan">
                 <option disabled selected value="">Pilih</option>
-                <option value="ada" @if($umkm->surat_ijin_penempatan == 'ada') @selected(true) @endif>Ada</option>
-                <option value="tidak" @if($umkm->surat_ijin_penempatan == 'tidak') @selected(true) @endif>Tidak</option>
+                <option value="ada" {{ old('surat_ijin_penempatan', $umkm->surat_ijin_penempatan) == 'ada' ? 'selected' : '' }}>Ada</option>
+                <option value="tidak" {{ old('surat_ijin_penempatan', $umkm->surat_ijin_penempatan) == 'tidak' ? 'selected' : '' }}>Tidak</option>
               </select>
               @error('surat_ijin_penempatan')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
+
+            {{-- Retribusi --}}
             <div class="mb-3">
               <label class="form-label required">Retribusi</label>
               <select class="form-select" name="retribusi">
                 <option disabled selected value="">Pilih</option>
-                <option value="lancar" @if($umkm->retribusi == 'lancar') @selected(true) @endif>Lancar</option>
-                <option value="tidak lancar" @if($umkm->retribusi == 'tidak lancar') @selected(true) @endif>Tidak Lancar</option>
+                <option value="lancar" {{ old('retribusi', $umkm->retribusi) == 'lancar' ? 'selected' : '' }}>Lancar</option>
+                <option value="tidak lancar" {{ old('retribusi', $umkm->retribusi) == 'tidak lancar' ? 'selected' : '' }}>Tidak Lancar</option>
               </select>
               @error('retribusi')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
+
+            {{-- Kategori --}}
             <div class="mb-3">
               <label class="form-label required">Kategori</label>
               <select class="form-select" name="kategori_id">
                 <option disabled selected value="">Pilih</option>
                 @foreach($kategoris as $kategori)
-                  <option value="{{ $kategori->id }}" @if($umkm->kategori_id == $kategori->id) @selected(true) @endif>{{ $kategori->kategori }}</option>
+                  <option value="{{ $kategori->id }}" {{ old('kategori_id', $umkm->kategori_id) == $kategori->id ? 'selected' : '' }}>
+                    {{ $kategori->kategori }}
+                  </option>
                 @endforeach
               </select>
               @error('kategori_id')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
+
+            {{-- Jenis Dagangan --}}
             <div class="mb-3">
               <label class="form-label">Jenis Dagangan</label>
-              <input type="text" class="form-control" name="jenis_dagangan" placeholder="Jenis Dagangan" value="{{ $umkm->jenis_dagangan }}">
+              <input type="text" class="form-control" name="jenis_dagangan" placeholder="Jenis Dagangan"
+                     value="{{ old('jenis_dagangan', $umkm->jenis_dagangan) }}">
               @error('jenis_dagangan')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
+
+            {{-- Nomor SIP --}}
             <div class="mb-3">
               <label class="form-label">Nomor SIP</label>
-              <input type="text" class="form-control" name="nomor_sip" placeholder="Nomor SIP" value="{{ $umkm->nomor_sip }}">
+              <input type="text" class="form-control" name="nomor_sip" placeholder="Nomor SIP"
+                     value="{{ old('nomor_sip', $umkm->nomor_sip) }}">
               @error('nomor_sip')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
+
+            {{-- Valid SIP --}}
             <div class="mb-3">
               <label class="form-label">Valid SIP</label>
-              <input type="text" class="form-control" name="valid_sip" placeholder="Valid SIP" value="{{ $umkm->valid_sip }}">
+              <input type="text" class="form-control" name="valid_sip" placeholder="Valid SIP"
+                     value="{{ old('valid_sip', $umkm->valid_sip) }}">
               @error('valid_sip')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
+
+            {{-- Status Aktif --}}
             <div class="mb-3">
               <label class="form-label required">Status Aktif</label>
               <select class="form-select" name="aktif">
                 <option disabled selected value="">Pilih</option>
-                <option value="1" @if($umkm->aktif == 1) @selected(true) @endif>Aktif</option>
-                <option value="0" @if($umkm->aktif == 0) @selected(true) @endif>Non Aktif</option>
+                <option value="1" {{ old('aktif', $umkm->aktif) == 1 ? 'selected' : '' }}>Aktif</option>
+                <option value="0" {{ old('aktif', $umkm->aktif) == 0 ? 'selected' : '' }}>Non Aktif</option>
               </select>
               @error('aktif')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
+
+            {{-- Note --}}
             <div class="mb-3">
               <label class="form-label">Note</label>
-              <textarea class="form-control" name="note" rows="3" placeholder="Note">{{ $umkm->note }}</textarea>
+              <textarea class="form-control" name="note" rows="3" placeholder="Note">{{ old('note', $umkm->note) }}</textarea>
               @error('note')<div class="text-danger">{{ $message }}</div>@enderror
             </div>
+
           </div>
+
           <div class="card-footer text-end">
             <div class="d-flex">
               <a href="{{ route('admin.umkm.index') }}" class="btn btn-secondary">Back</a>
               <button type="submit" class="btn btn-primary ms-auto">Submit</button>
             </div>
           </div>
+
         </form>
       </div>
     </div>
@@ -181,87 +219,46 @@
 @endsection
 @push('scripts')
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const shelterSelectEdit{{ $umkm->id }} = document.getElementById(`shelter-select-edit{{ $umkm->id }}`);
-    const boothSelectEdit{{ $umkm->id }} = document.getElementById(`nomor-booth-select-edit{{ $umkm->id }}`);
-    const shiftSelectEdit{{ $umkm->id }} = document.getElementById(`shift-select-edit{{ $umkm->id }}`);
+document.addEventListener('DOMContentLoaded', function () {
+    const shelterSelect = document.querySelector('select[name="shelter_id"]');
+    const boothInput = document.querySelector('input[name="nomor_booth"]');
+    const shiftSelect = document.querySelector('select[name="shift"]');
 
-    function populateBoothAndShiftEdit{{ $umkm->id }}() {
-      const selectedOption = shelterSelectEdit{{ $umkm->id }}.options[shelterSelectEdit{{ $umkm->id }}.selectedIndex];
-      const boothStatus = JSON.parse(selectedOption.getAttribute('data-booth-status') || '{}');
-      const totalCapacity = parseInt(selectedOption.getAttribute('data-total-capacity'), 10);
+    // Simpan status booth dari data attribute setiap shelter
+    const shelters = @json($shelters);
 
-      // Populate booth options
-      boothSelectEdit{{ $umkm->id }}.innerHTML = '<option disabled value="">Pilih</option>';
-      for (let i = 1; i <= totalCapacity; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = `Booth ${i}`;
+    function updateShiftOptions() {
+        const selectedShelterId = shelterSelect.value;
+        const boothNumber = boothInput.value;
 
-        const status = boothStatus[i] || { pagi: false, malam: false };
+        // Reset semua shift jadi aktif
+        shiftSelect.querySelectorAll('option').forEach(opt => opt.disabled = false);
 
-        // Check if booth is full
-        if (status.pagi && status.malam) {
-          option.disabled = true;
+        if (!selectedShelterId || !boothNumber) return;
+
+        // Cari shelter yang dipilih
+        const shelter = shelters.find(s => s.id == selectedShelterId);
+        if (!shelter) return;
+
+        const boothStatus = shelter.booth_status || {};
+        const status = boothStatus[boothNumber] || { pagi: false, malam: false };
+
+        // 🔴 Kalau booth sudah dipakai untuk pagi → disable opsi "pagi" & "pagi malam"
+        if (status.pagi) {
+            shiftSelect.querySelector('option[value="pagi"]').disabled = true;
+            shiftSelect.querySelector('option[value="pagi malam"]').disabled = true;
         }
 
-        // Set the current booth as selected
-        if (i == {{ $umkm->nomor_booth }}) {
-          option.selected = true;
+        // 🔴 Kalau booth sudah dipakai untuk malam → disable opsi "malam" & "pagi malam"
+        if (status.malam) {
+            shiftSelect.querySelector('option[value="malam"]').disabled = true;
+            shiftSelect.querySelector('option[value="pagi malam"]').disabled = true;
         }
-
-        boothSelectEdit{{ $umkm->id }}.appendChild(option);
-      }
-
-      // Ensure the fields are enabled if they already have values
-      if (boothSelectEdit{{ $umkm->id }}.value) {
-        boothSelectEdit{{ $umkm->id }}.disabled = false;
-        handleShiftOptionsEdit{{ $umkm->id }}(); // Adjust shifts dynamically
-      }
-      if (shiftSelectEdit{{ $umkm->id }}.value) {
-        shiftSelectEdit{{ $umkm->id }}.disabled = false;
-      }
     }
 
-    function handleShiftOptionsEdit{{ $umkm->id }}() {
-      const selectedBooth = boothSelectEdit{{ $umkm->id }}.value;
-      const selectedOption = shelterSelectEdit{{ $umkm->id }}.options[shelterSelectEdit{{ $umkm->id }}.selectedIndex];
-      const boothStatus = JSON.parse(selectedOption.getAttribute('data-booth-status') || '{}');
-      const status = boothStatus[selectedBooth] || { pagi: false, malam: false };
-
-      // Reset shift options
-      shiftSelectEdit{{ $umkm->id }}.innerHTML = `
-          <option disabled value="">Pilih</option>
-          <option value="pagi" {{ $umkm->shift == 'pagi' ? 'selected' : '' }}>Pagi</option>
-          <option value="malam" {{ $umkm->shift == 'malam' ? 'selected' : '' }}>Malam</option>
-          <option value="pagi malam" {{ $umkm->shift == 'pagi malam' ? 'selected' : '' }}>Pagi Malam</option>
-      `;
-
-      // Disable shifts based on booth status
-      if (status.pagi) {
-        shiftSelectEdit{{ $umkm->id }}.querySelector('option[value="pagi"]').disabled = true;
-        shiftSelectEdit{{ $umkm->id }}.querySelector('option[value="pagi malam"]').disabled = true;
-      }
-      if (status.malam) {
-        shiftSelectEdit{{ $umkm->id }}.querySelector('option[value="malam"]').disabled = true;
-        shiftSelectEdit{{ $umkm->id }}.querySelector('option[value="pagi malam"]').disabled = true;
-      }
-
-      // Ensure shift is enabled
-      shiftSelectEdit{{ $umkm->id }}.disabled = false;
-    }
-
-    // Populate data on page load and when shelter changes
-    populateBoothAndShiftEdit{{ $umkm->id }}();
-    shelterSelectEdit{{ $umkm->id }}.addEventListener('change', function () {
-      boothSelectEdit{{ $umkm->id }}.disabled = false; // Ensure booth is enabled
-      shiftSelectEdit{{ $umkm->id }}.disabled = true;  // Disable shift until a booth is selected
-      populateBoothAndShiftEdit{{ $umkm->id }}();
-    });
-
-    boothSelectEdit{{ $umkm->id }}.addEventListener('change', function () {
-      handleShiftOptionsEdit{{ $umkm->id }}(); // Handle shift options based on booth status
-    });
-  });
+    // Event Listener
+    shelterSelect.addEventListener('change', updateShiftOptions);
+    boothInput.addEventListener('input', updateShiftOptions);
+});
 </script>
 @endpush
