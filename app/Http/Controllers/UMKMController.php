@@ -321,38 +321,61 @@ class UMKMController extends Controller
     public function store(Request $request) {
         try {
             $request->validate([
-                'shelter_id' => 'required',
+                'shelter_id' => 'required|exists:shelters,id',
                 'nomor_booth' => [
-                'nullable',
-                    Rule::unique('umkms')->where(function ($query) use ($request) {
-                        return $query->where('shelter_id', $request->shelter_id)->where('shift', $request->shift);
-                    })
+                    'required',
+                    'integer',
+                    'min:1',
+                    function ($attribute, $value, $fail) use ($request) {
+                        $shelter = \App\Models\Shelter::find($request->shelter_id);
+
+                        if ($shelter && $value > $shelter->kapasitas) {
+                            $fail('Nomor Booth tidak boleh lebih besar dari kapasitas shelter (' . $shelter->kapasitas . ').');
+                            return;
+                        }
+
+                        $existingUMKMs = UMKM::where('shelter_id', $request->shelter_id)
+                            ->where('nomor_booth', $value)
+                            ->get();
+
+                        foreach ($existingUMKMs as $umkm) {
+                            if ($umkm->shift === 'pagi malam') {
+                                $fail("Booth {$value} sudah dipakai untuk shift pagi malam, tidak bisa dipakai lagi.");
+                                return;
+                            }
+
+                            if ($request->shift === 'pagi' && ($umkm->shift === 'pagi' || $umkm->shift === 'pagi malam')) {
+                                $fail("Booth {$value} sudah dipakai untuk shift pagi.");
+                                return;
+                            }
+
+                            if ($request->shift === 'malam' && ($umkm->shift === 'malam' || $umkm->shift === 'pagi malam')) {
+                                $fail("Booth {$value} sudah dipakai untuk shift malam.");
+                                return;
+                            }
+
+                            if ($request->shift === 'pagi malam') {
+                                $fail("Booth {$value} sudah dipakai, tidak bisa dipakai untuk shift pagi malam.");
+                                return;
+                            }
+                        }
+                    }
                 ],
-                'nama' => 'required',
-                'tempat_lahir' => 'required',
-                'tanggal_lahir' => 'required',
-                'alamat' => 'required',
-                'shift' => 'nullable',
-                'surat_ijin_penempatan' => 'required',
-                'retribusi' => 'required',
-                'kategori_id' => 'required',
-                'aktif' => 'required',
+                'shift' => 'required|in:pagi,malam,pagi malam',
+                'nama' => 'required|string',
+                'tempat_lahir' => 'required|string',
+                'tanggal_lahir' => 'required|date',
+                'alamat' => 'required|string',
+                'surat_ijin_penempatan' => 'required|in:ada,tidak',
+                'retribusi' => 'required|in:lancar,tidak lancar',
+                'kategori_id' => 'required|exists:kategoris,id',
+                'aktif' => 'required|boolean',
             ], [
-                'shelter_id.required' => 'Shelter wajib diisi.',
                 'nomor_booth.required' => 'Nomor Booth wajib diisi.',
-                'nomor_booth.unique' => 'Nomor Booth ini sudah digunakan untuk Shelter yang dipilih.',
-                'nama.required' => 'Nama wajib diisi.',
-                'tempat_lahir.required' => 'Tempat Lahir wajib diisi.',
-                'tanggal_lahir.required' => 'Tanggal Lahir wajib diisi.',
-                'tanggal_lahir.date' => 'Tanggal Lahir harus berupa tanggal yang valid.',
-                'alamat.required' => 'Alamat wajib diisi.',
+                'nomor_booth.integer' => 'Nomor Booth harus berupa angka.',
+                'nomor_booth.min' => 'Nomor Booth harus minimal 1.',
                 'shift.required' => 'Shift wajib diisi.',
-                'surat_ijin_penempatan.required' => 'Surat Ijin Penempatan wajib diisi.',
-                'retribusi.required' => 'Retribusi wajib diisi.',
-                'retribusi.numeric' => 'Retribusi harus berupa angka.',
-                'kategori_id.required' => 'Kategori wajib diisi.',
-                'aktif.required' => 'Status aktif wajib diisi.',
-                'aktif.boolean' => 'Status aktif harus berupa true atau false.',
+                'shift.in' => 'Shift harus Pagi, Malam, atau Pagi Malam.',
             ]);
 
             $array = [
@@ -444,38 +467,62 @@ class UMKMController extends Controller
             $umkm = UMKM::find($id);
     
             $request->validate([
-                'shelter_id' => 'required',
+                'shelter_id' => 'required|exists:shelters,id',
                 'nomor_booth' => [
                     'required',
-                    Rule::unique('umkms')->where(function ($query) use ($request) {
-                        return $query->where('shelter_id', $request->shelter_id)->where('shift', $request->shift);
-                    })->ignore($umkm->id)
+                    'integer',
+                    'min:1',
+                    function ($attribute, $value, $fail) use ($request, $umkm) {
+                        $shelter = \App\Models\Shelter::find($request->shelter_id);
+
+                        if ($shelter && $value > $shelter->kapasitas) {
+                            $fail('Nomor Booth tidak boleh lebih besar dari kapasitas shelter (' . $shelter->kapasitas . ').');
+                            return;
+                        }
+
+                        $existingUMKMs = UMKM::where('shelter_id', $request->shelter_id)
+                            ->where('nomor_booth', $value)
+                            ->where('id', '!=', $umkm->id)
+                            ->get();
+
+                        foreach ($existingUMKMs as $u) {
+                            if ($u->shift === 'pagi malam') {
+                                $fail("Booth {$value} sudah dipakai untuk shift pagi malam, tidak bisa dipakai lagi.");
+                                return;
+                            }
+
+                            if ($request->shift === 'pagi' && ($u->shift === 'pagi' || $u->shift === 'pagi malam')) {
+                                $fail("Booth {$value} sudah dipakai untuk shift pagi.");
+                                return;
+                            }
+
+                            if ($request->shift === 'malam' && ($u->shift === 'malam' || $u->shift === 'pagi malam')) {
+                                $fail("Booth {$value} sudah dipakai untuk shift malam.");
+                                return;
+                            }
+
+                            if ($request->shift === 'pagi malam') {
+                                $fail("Booth {$value} sudah dipakai, tidak bisa dipakai untuk shift pagi malam.");
+                                return;
+                            }
+                        }
+                    }
                 ],
-                'nama' => 'required',
-                'tempat_lahir' => 'required',
-                'kategori_id' => 'required',
-                'tanggal_lahir' => 'required',
-                'alamat' => 'required',
-                'shift' => 'required',
-                'surat_ijin_penempatan' => 'required',
-                'retribusi' => 'required',
-                'aktif' => 'required',
+                'shift' => 'required|in:pagi,malam,pagi malam',
+                'nama' => 'required|string',
+                'tempat_lahir' => 'required|string',
+                'tanggal_lahir' => 'required|date',
+                'alamat' => 'required|string',
+                'surat_ijin_penempatan' => 'required|in:ada,tidak',
+                'retribusi' => 'required|in:lancar,tidak lancar',
+                'kategori_id' => 'required|exists:kategoris,id',
+                'aktif' => 'required|boolean',
             ], [
-                'shelter_id.required' => 'Shelter wajib diisi.',
                 'nomor_booth.required' => 'Nomor Booth wajib diisi.',
-                'nomor_booth.unique' => 'Nomor Booth ini sudah digunakan di Shelter yang dipilih.',
-                'nama.required' => 'Nama wajib diisi.',
-                'tempat_lahir.required' => 'Tempat Lahir wajib diisi.',
-                'tanggal_lahir.required' => 'Tanggal Lahir wajib diisi.',
-                'tanggal_lahir.date' => 'Tanggal Lahir harus berupa tanggal yang valid.',
-                'alamat.required' => 'Alamat wajib diisi.',
+                'nomor_booth.integer' => 'Nomor Booth harus berupa angka.',
+                'nomor_booth.min' => 'Nomor Booth minimal 1.',
                 'shift.required' => 'Shift wajib diisi.',
-                'surat_ijin_penempatan.required' => 'Surat Ijin Penempatan wajib diisi.',
-                'retribusi.required' => 'Retribusi wajib diisi.',
-                'retribusi.numeric' => 'Retribusi harus berupa angka.',
-                'kategori_id.required' => 'Kategori wajib diisi.',
-                'aktif.required' => 'Status aktif wajib diisi.',
-                'aktif.boolean' => 'Status aktif harus berupa true atau false.',
+                'shift.in' => 'Shift harus Pagi, Malam, atau Pagi Malam.',
             ]);
 
             $array = [
